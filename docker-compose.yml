@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+
+  backend:
+    build: .
+    container_name: adesua_container
+    image: adesua_django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/django
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+      - pgadmin
+
+  database:
+    container_name: postgres_database
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    # volumes:
+    #   - ./data/database:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
