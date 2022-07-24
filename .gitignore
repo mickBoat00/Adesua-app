@@ -137,5 +137,5 @@ GitHub.sublime-settings
 .history
 
 /data
-data/*
+data/
 data/database/
