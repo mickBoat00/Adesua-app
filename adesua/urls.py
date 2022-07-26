@@ -17,3 +17,8 @@ urlpatterns = [
         version="1.0.0"
     ), name='openapi-schema'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+admin.site.site_header = "Adesua Admin"
+admin.site.site_title = "Adesua Admin Portal"
+admin.site.index_title = "Adesua Admin"
