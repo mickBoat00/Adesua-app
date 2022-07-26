@@ -7,6 +7,7 @@ from django.core.validators import MinValueValidator, FileExtensionValidator
 from autoslug import AutoSlugField
 
 
+
 class Course(models.Model):
     title = models.CharField(verbose_name=_('Course Title'), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
@@ -32,9 +33,10 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
+
 class Lesson(models.Model):
     course = models.ForeignKey(Course, related_name='lessons', on_delete=models.CASCADE)
-    title = models.CharField(verbose_name=_('Course Title'), max_length=100)
+    title = models.CharField(verbose_name=_('Lesson Title'), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
     description = models.TextField()
     video = models.FileField(verbose_name=_("Lesson Video"), upload_to='lesson_videos',null=True, blank=True,

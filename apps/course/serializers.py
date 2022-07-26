@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Course
+from .models import Course, Lesson
 
 """
     Should not get all the data about the course from scratch
@@ -37,3 +37,15 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             'lessons'
         ]
         read_only_fields = ['slug','rating', 'raters', 'students']
+
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'description',
+            'video',
+        ]
