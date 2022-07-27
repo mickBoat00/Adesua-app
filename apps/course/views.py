@@ -23,6 +23,7 @@ class IsOwner(permissions.BasePermission):
 
 
 class CourseListAPIView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Course.objects.all()
     serializer_class = CourseListSerializer
 
@@ -36,9 +37,7 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class LessonListAPIView(generics.ListCreateAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
+
 
 
 class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

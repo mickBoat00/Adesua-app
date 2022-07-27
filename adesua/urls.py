@@ -7,9 +7,22 @@ from django.conf.urls.static import static
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('api/', include('apps.course.urls')),
+    path('api/profile/', include('apps.profiles.urls')),
+
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.jwt')),
+     
+    
+    
     path('api/doc/', include_docs_urls(title='AdesuaAPI')),
     path('schema', get_schema_view(
         title="Adesua API",

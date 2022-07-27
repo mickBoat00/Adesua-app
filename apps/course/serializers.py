@@ -46,12 +46,13 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(many=False, queryset=Course.objects.all())
+
     class Meta:
         model = Lesson
         fields = [
-            'id',
+            'course',
             'title',
-            'slug',
             'description',
             'video',
         ]
