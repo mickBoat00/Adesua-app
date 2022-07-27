@@ -9,7 +9,7 @@ from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/courses/', include('apps.course.urls')),
+    path('api/', include('apps.course.urls')),
     path('api/doc/', include_docs_urls(title='AdesuaAPI')),
     path('schema', get_schema_view(
         title="Adesua API",

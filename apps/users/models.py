@@ -11,6 +11,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from apps.profiles.models import Profile
+
+
+
 
 class CustomUserManager(BaseUserManager):
     def email_validator(self, email):
@@ -80,7 +87,8 @@ class CustomUserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser, PermissionsMixin):
-    pkid = models.BigAutoField(primary_key=True, editable=False, unique=True)
+    pkid = models.BigAutoField(primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     username = models.CharField(verbose_name=_("Username"), max_length=255, unique=True)
     first_name = models.CharField(verbose_name=_("First Name"), max_length=50)
     last_name = models.CharField(verbose_name=_("Last Name"), max_length=50)
@@ -107,3 +115,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.username
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+post_save.connect(create_user_profile,  sender=User)

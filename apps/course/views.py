@@ -1,15 +1,33 @@
 from rest_framework import generics
 from .models import Course, Lesson
-
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 
 from .serializers import CourseListSerializer, CourseDetailSerializer, LessonSerializer
+
+class IsOwner(permissions.BasePermission):
+
+    message = "You are not enrolled in this course."
+
+    def has_object_permission(self, request, view, obj):
+       
+        if request.method in permissions.SAFE_METHODS:
+            if obj.course.instructor == request.user.profile:
+                return True
+            else:
+                return request.user.profile in obj.course.students.all()
+
+        return obj.course.instructor == request.user.profile
 
 
 class CourseListAPIView(generics.ListCreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseListSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(instructor=self.request.user.profile)
 
 
 class CourseDetailAPIView(generics.RetrieveAPIView):
@@ -17,29 +35,14 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     serializer_class = CourseDetailSerializer
     lookup_field = 'slug'
 
-class CourseLessonListAPIView(generics.ListCreateAPIView):
-    serializer_class = LessonSerializer
-    lookup_field = 'slug'
 
-    def get_queryset(self):
-        return Lesson.objects.filter(course__slug=self.kwargs.get('slug'))
-
-    def perform_create(self, serializer):
-        course = Course.objects.get(slug=self.kwargs.get('slug'))
-        serializer.save(course=course)
-
-
-class CourseLessonDetailAPIView(APIView):
-    def get(self, request, course_slug, lesson_slug, format=None):
-        queryset = Lesson.objects.get(course__slug=course_slug, slug=lesson_slug)
-        serializer = LessonSerializer(queryset, many=False)
-        return Response(serializer.data)    
-
-    
-class CourseLessonUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
+class LessonListAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    lookup_field = 'slug'
 
-    def get_object(self):
-        return Lesson.objects.get(course__slug=self.kwargs.get('slug'), slug=self.kwargs.get('lesson_slug'))
+
+class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    queryset=Lesson.objects.all()
+    serializer_class = LessonSerializer
+    lookup_field = 'slug'

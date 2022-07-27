@@ -4,8 +4,16 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-User = get_user_model()
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from adesua.settings import AUTH_USER_MODEL
+
+
+User = AUTH_USER_MODEL
 
 
 class Gender(models.TextChoices):

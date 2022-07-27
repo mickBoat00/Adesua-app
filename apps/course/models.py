@@ -6,9 +6,11 @@ from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from autoslug import AutoSlugField
 
+from apps.profiles.models import Profile
 
 
 class Course(models.Model):
+    instructor = models.ForeignKey(Profile, verbose_name=_("Course Instructor"), related_name="instructor", on_delete=models.DO_NOTHING)
     title = models.CharField(verbose_name=_('Course Title'), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
     description = models.TextField()
@@ -16,7 +18,7 @@ class Course(models.Model):
     price = models.DecimalField(verbose_name=_("Price"), max_digits=8, decimal_places=2, default=0.0,validators=[MinValueValidator(Decimal("0.0"))])
     rating = models.DecimalField(verbose_name=_("Ratings"), max_digits=8, decimal_places=2, default=0.0)
     raters = models.IntegerField(verbose_name=_("Number of raters"),default=0)
-    students = models.IntegerField(verbose_name=_("Number of Students"), default=0)
+    students = models.ManyToManyField(Profile)
 
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)

@@ -6,10 +6,13 @@ from .models import Course, Lesson
     Should not get all the data about the course from scratch
 """
 class CourseListSerializer(serializers.ModelSerializer):
+    instructor = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
         fields = [
+            'id', 
+            'instructor', 
             'title', 
             'slug', 
             'description', 
@@ -19,6 +22,9 @@ class CourseListSerializer(serializers.ModelSerializer):
             'raters', 
         ]
         read_only_fields = ['slug','rating', 'raters']
+
+    def get_instructor(self, obj):
+        return obj.instructor.user.get_full_name
 
 class CourseDetailSerializer(serializers.ModelSerializer):
     lessons = serializers.StringRelatedField(many=True)
