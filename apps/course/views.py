@@ -37,7 +37,18 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     lookup_field = 'slug'
 
 
+class LessonListAPIView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
 
+    def perform_create(self, serializer):
+        course = serializer.validated_data.get('course')
+
+        if course.instructor != self.request.user.profile:
+            return Response('Only course instructor can create lessons for this course.')
+
+        serializer.save()
 
 
 class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
