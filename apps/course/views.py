@@ -5,11 +5,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
+from .africa_iso import iso_list
+
 from .serializers import CourseListSerializer, CourseDetailSerializer, LessonSerializer
 
 class IsOwner(permissions.BasePermission):
 
-    message = "You are not enrolled in this course."
+    message = "You are not allowed to perform this action."
 
     def has_object_permission(self, request, view, obj):
        
@@ -28,6 +30,13 @@ class CourseListAPIView(generics.ListCreateAPIView):
     serializer_class = CourseListSerializer
 
     def perform_create(self, serializer):
+        """
+        From django_countries docs, it uses ISO 3166-1 country codes
+        """
+        
+        if self.request.user.profile.country not in iso_list(): 
+            return Response('You are not African.')
+
         serializer.save(instructor=self.request.user.profile)
 
 
@@ -56,3 +65,12 @@ class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset=Lesson.objects.all()
     serializer_class = LessonSerializer
     lookup_field = 'slug'
+
+
+class CourseEnrolledAPIView(generics.RetrieveUpdateAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseDetailSerializer
+    lookup_field = 'slug'
+
+    def perform_update(self, serializer):
+        print('serializer', serializer)

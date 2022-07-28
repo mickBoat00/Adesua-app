@@ -7,16 +7,13 @@ from django.conf.urls.static import static
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include('apps.course.urls')),
     path('api/profile/', include('apps.profiles.urls')),
+    path('api/orders/', include('apps.orders.urls')),
 
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),
