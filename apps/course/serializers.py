@@ -26,6 +26,18 @@ class CourseListSerializer(serializers.ModelSerializer):
     def get_instructor(self, obj):
         return obj.instructor.user.get_full_name
 
+
+class CourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = [
+            'title', 
+            'description', 
+            'cover_image', 
+            'price', 
+        ]
+
+
 class CourseDetailSerializer(serializers.ModelSerializer):
     lessons = serializers.StringRelatedField(many=True)
 

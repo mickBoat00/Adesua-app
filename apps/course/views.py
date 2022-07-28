@@ -24,7 +24,12 @@ class IsOwner(permissions.BasePermission):
         return obj.course.instructor == request.user.profile
 
 
-class CourseListAPIView(generics.ListCreateAPIView):
+class CourseListAPIView(generics.ListAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseListSerializer
+
+
+class CourseCreateAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Course.objects.all()
     serializer_class = CourseListSerializer
@@ -46,7 +51,7 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class LessonListAPIView(generics.ListCreateAPIView):
+class LessonCreateAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
