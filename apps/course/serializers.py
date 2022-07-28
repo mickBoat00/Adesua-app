@@ -20,6 +20,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             'price', 
             'rating',  
             'raters', 
+            'pay', 
         ]
         read_only_fields = ['slug','rating', 'raters']
 
@@ -35,6 +36,8 @@ class CourseCreateSerializer(serializers.ModelSerializer):
             'description', 
             'cover_image', 
             'price', 
+            'pay', 
+            'published_status', 
         ]
 
 

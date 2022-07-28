@@ -2,8 +2,9 @@ from rest_framework import generics
 from .models import Course, Lesson
 from rest_framework import permissions
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
+from rest_framework.response import Response
 
 from .africa_iso import iso_list
 
@@ -23,9 +24,23 @@ class IsOwner(permissions.BasePermission):
 
         return obj.course.instructor == request.user.profile
 
+class aOwner(permissions.BasePermission):
+
+    message = "You are not allowed to perform this action."
+
+    def has_object_permission(self, request, view, obj):
+       
+        if request.method in permissions.SAFE_METHODS:
+            if request.user.is_anonymous:
+                return True
+            return True
+
+        elif not request.user.is_anonymous:
+            return obj.instructor == request.user.profile
+
 
 class CourseListAPIView(generics.ListAPIView):
-    queryset = Course.objects.all()
+    queryset = Course.published.all()
     serializer_class = CourseListSerializer
 
 
@@ -45,7 +60,8 @@ class CourseCreateAPIView(generics.CreateAPIView):
         serializer.save(instructor=self.request.user.profile)
 
 
-class CourseDetailAPIView(generics.RetrieveAPIView):
+class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [aOwner]
     queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer
     lookup_field = 'slug'
@@ -60,9 +76,15 @@ class LessonCreateAPIView(generics.CreateAPIView):
         course = serializer.validated_data.get('course')
 
         if course.instructor != self.request.user.profile:
-            return Response('Only course instructor can create lessons for this course.')
+            print('here??')
+            return Response(
+                {'error':'Only course instructor can create lessons for this course.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-        serializer.save()
+        else:
+            print('serializer', serializer)
+            serializer.save()
 
 
 class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -72,10 +94,16 @@ class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
 
-class CourseEnrolledAPIView(generics.RetrieveUpdateAPIView):
-    queryset = Course.objects.all()
-    serializer_class = CourseDetailSerializer
-    lookup_field = 'slug'
+# class CourseEnrolledAPIView(generics.CreateAPIView):
+#     queryset = OrderCourse.objects.all()
+#     serializer_class = OrderCourseSerializer
 
-    def perform_update(self, serializer):
-        print('serializer', serializer)
+#     def perform_create(self, serializer):
+#         print('seeee', serializer.validated_data)
+
+#         course = serializer.validated_data.get('course')
+#         person = self.request.user.profile
+
+#         course.students.add(person)
+
+#         serializer.save(user=person)

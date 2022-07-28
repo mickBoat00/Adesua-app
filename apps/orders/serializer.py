@@ -10,7 +10,6 @@ class OrderCourseSerializer(serializers.ModelSerializer):
         fields = [
             'id', 
             'course', 
-            'user', 
             'price', 
         ]
  

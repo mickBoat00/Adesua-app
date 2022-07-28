@@ -10,7 +10,7 @@ from apps.profiles.models import Profile
 
 class OrderCourse(models.Model):
     course = models.ForeignKey(Course, related_name='order', on_delete=models.CASCADE)
-    user = models.ForeignKey(Profile, related_name='profile', on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, related_name='profile', null=True, blank=True, on_delete=models.CASCADE)
     price = models.DecimalField(verbose_name=_("Price"), max_digits=8, decimal_places=2, 
                                     default=0.0,validators=[MinValueValidator(Decimal("0.0"))]) 
 

@@ -12,17 +12,10 @@ class PayCourseAPIView(generics.ListCreateAPIView):
         print('seeee', serializer.validated_data)
 
         course = serializer.validated_data.get('course')
-        person = serializer.validated_data.get('user')
+        person = self.request.user.profile
 
         course.students.add(person)
 
-
-
-        # course = serializer.validated_data.get('course')
-
-        # if course.instructor != self.request.user.profile:
-        #     return Response('Only course instructor can create lessons for this course.')
-
-        serializer.save()
+        serializer.save(user=person)
 
 

@@ -8,8 +8,21 @@ from autoslug import AutoSlugField
 
 from apps.profiles.models import Profile
 
+class CoursePublishedManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super(CoursePublishedManager, self).get_queryset().filter(published_status=True)
+        )
+
 
 class Course(models.Model):
+
+    PAY_CHOICES = [
+        ('Free', 'Free'),
+        ('Paid', 'Paid'),
+    ]
+
+
     instructor = models.ForeignKey(Profile, verbose_name=_("Course Instructor"), related_name="instructor", on_delete=models.DO_NOTHING)
     title = models.CharField(verbose_name=_('Course Title'), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
@@ -19,6 +32,20 @@ class Course(models.Model):
     rating = models.DecimalField(verbose_name=_("Ratings"), max_digits=8, decimal_places=2, default=0.0)
     raters = models.IntegerField(verbose_name=_("Number of raters"),default=0)
     students = models.ManyToManyField(Profile)
+
+    pay = models.CharField(
+        verbose_name=_("Paid / Free"),
+        max_length=4,
+        choices=PAY_CHOICES,
+        default='Free',
+    )
+
+    published_status = models.BooleanField(
+        verbose_name=_("Published Status"), default=False
+    )
+
+    objects = models.Manager()
+    published = CoursePublishedManager()
 
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
@@ -30,6 +57,8 @@ class Course(models.Model):
 
     def save(self, *args, **kwargs):
         self.title = str.title(self.title)
+        if self.pay == 'Free':
+            self.price = 0.00
         super(Course, self).save(*args, **kwargs)
 
     def __str__(self):
