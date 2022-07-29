@@ -55,7 +55,9 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             'rating',  
             'raters', 
             'students',
-            'lessons'
+            'lessons',
+            'pay',
+            'published_status',
         ]
         read_only_fields = ['slug','rating', 'raters', 'students']
 
@@ -67,6 +69,7 @@ class LessonSerializer(serializers.ModelSerializer):
         model = Lesson
         fields = [
             'course',
+            'id',
             'title',
             'description',
             'video',

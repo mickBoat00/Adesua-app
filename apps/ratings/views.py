@@ -1,5 +1,6 @@
-from rest_framework import generics 
+from rest_framework import generics ,status
 from rest_framework import permissions
+from rest_framework.response import Response
 from rest_framework.decorators import permission_classes
 
 from .models import Rating
@@ -7,10 +8,12 @@ from .serializers import RatingSerializer
 
 
 class CourseRating(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
 
     def perform_create(self, serializer):
+        return Response({"Success": "msb blablabla"}, status=status.HTTP_401_UNAUTHORIZED, headers=None)
         rater = self.request.user.profile
 
         print('rater', rater)
@@ -39,8 +42,10 @@ class CourseRating(generics.CreateAPIView):
             serializer.save(rater=rater)
 
         else:
+            print('here')
+            return status.HTTP_401_UNAUTHORIZED,
             print('you are not enrolled in the course ')
-            return
+            return Response({'error': 'you are not enrolled in the course'})
 
         """
         Dont allow if the 

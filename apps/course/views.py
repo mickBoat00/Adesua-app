@@ -14,7 +14,15 @@ class IsOwner(permissions.BasePermission):
 
     message = "You are not allowed to perform this action."
 
+    def has_permission(self, request, view):
+
+        print('obj')
+       
+        return False
+
     def has_object_permission(self, request, view, obj):
+
+        print('obj', obj)
        
         if request.method in permissions.SAFE_METHODS:
             if obj.course.instructor == request.user.profile:
@@ -23,6 +31,9 @@ class IsOwner(permissions.BasePermission):
                 return request.user.profile in obj.course.students.all()
 
         return obj.course.instructor == request.user.profile
+
+# class CourseInstructor(permissions.BasePermission):
+
 
 class aOwner(permissions.BasePermission):
 
@@ -37,6 +48,17 @@ class aOwner(permissions.BasePermission):
 
         elif not request.user.is_anonymous:
             return obj.instructor == request.user.profile
+
+
+class EnrolledStudent(permissions.BasePermission):
+    message = "You are not allowed to perform this action."
+
+    def has_object_permission(self, request, view, obj):
+        print('qqqqq')
+
+        if obj.students.filter(user=self.request.user).exists():
+            print('obj', obj)
+            return True
 
 
 class CourseListAPIView(generics.ListAPIView):
@@ -66,9 +88,33 @@ class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CourseDetailSerializer
     lookup_field = 'slug'
 
+class CourseLessonsAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(course__slug=self.kwargs.get('slug'))
+
+# class CourseLessonsAPIView(APIView):
+#     permission_classes = [IsOwner]
+
+#     def get(self, request, slug, format=None, *args, **kwargs):
+
+#         print('hhhhhhhhh')
+    
+#         lesson = Lesson.objects.filter(course__slug=slug)
+
+#         print('les', lesson)
+
+#         serializer = LessonSerializer(lesson, many=True)
+
+#         return Response(serializer.data)
+
 
 class LessonCreateAPIView(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [aOwner]
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
 
@@ -92,18 +138,3 @@ class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset=Lesson.objects.all()
     serializer_class = LessonSerializer
     lookup_field = 'slug'
-
-
-# class CourseEnrolledAPIView(generics.CreateAPIView):
-#     queryset = OrderCourse.objects.all()
-#     serializer_class = OrderCourseSerializer
-
-#     def perform_create(self, serializer):
-#         print('seeee', serializer.validated_data)
-
-#         course = serializer.validated_data.get('course')
-#         person = self.request.user.profile
-
-#         course.students.add(person)
-
-#         serializer.save(user=person)

@@ -1,1 +1,13 @@
 Add makemigrate , migrate to docker startapp build
+
+Owner can view not published courses but others cant view not published courses.
+
+Output a good message for users creating lessons for courses that is not theirs
+
+Course lessons can't be viewed by not enrolled students (CourseLessonsAPIView) ***
+
+Output better response for (CourseRating) ratiing.
+
+
+Test
+if other can create lessons for courses, they didnt create?
