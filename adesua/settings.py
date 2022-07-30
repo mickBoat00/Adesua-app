@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'apps.profiles',
     'apps.orders',
     'apps.ratings',
+    'apps.search',
 
     'rest_framework',
     'djoser',

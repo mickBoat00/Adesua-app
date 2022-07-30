@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/profile/', include('apps.profiles.urls')),
     path('api/orders/', include('apps.orders.urls')),
     path('api/ratings/', include('apps.ratings.urls')),
+    path('api/search/', include('apps.search.urls')),
 
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),

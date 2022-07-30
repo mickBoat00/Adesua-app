@@ -12,6 +12,28 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+# class CourseListSerializer(serializers.ModelSerializer):
+#     instructor = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Course
+#         fields = [
+#             'id', 
+#             'instructor', 
+#             'title', 
+#             'slug', 
+#             'description', 
+#             'cover_image', 
+#             'price', 
+#             'rating',  
+#             'raters', 
+#             'pay', 
+#         ]
+#         read_only_fields = ['slug','rating', 'raters']
+
+#     def get_instructor(self, obj):
+#         return obj.instructor.user.get_full_name
+
 class CourseListSerializer(serializers.ModelSerializer):
     instructor = serializers.SerializerMethodField()
 
@@ -33,6 +55,23 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     def get_instructor(self, obj):
         return obj.instructor.user.get_full_name
+
+class CourseSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = [
+            'id', 
+            'title', 
+            'slug', 
+            'cover_image', 
+            'price', 
+            'rating',  
+            'raters', 
+            'pay', 
+        ]
+        read_only_fields = ['slug','rating', 'raters']
+
+    
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
