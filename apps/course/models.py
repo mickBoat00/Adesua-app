@@ -31,7 +31,7 @@ class Course(models.Model):
         ('Paid', 'Paid'),
     ]
 
-    categories = models.ManyToManyField(Category, verbose_name=_("Course Categories"),related_name="instructor")
+    categories = models.ManyToManyField(Category, verbose_name=_("Course Categories"),related_name="instructor", null=True, blank=True)
     instructor = models.ForeignKey(Profile, verbose_name=_("Course Instructor"), related_name="instructor", on_delete=models.DO_NOTHING)
     title = models.CharField(verbose_name=_('Course Title'), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
