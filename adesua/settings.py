@@ -46,15 +46,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework',
-    'djoser',
-    'rest_framework_simplejwt',
-
     'apps.course',
     'apps.users',
     'apps.profiles',
     'apps.orders',
     'apps.ratings',
+
+    'rest_framework',
+    'djoser',
+    'rest_framework_simplejwt',
+
+    'django_elasticsearch_dsl',
+
+    
 ]
 
 MIDDLEWARE = [
@@ -191,4 +195,9 @@ DJOSER = {
         "current_user": "apps.users.serializers.UserSerializer",
         "user_delete": "djoser.serializers.UserDeleteSerializer",
     },
+}
+
+
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "localhost:9200"}
 }
