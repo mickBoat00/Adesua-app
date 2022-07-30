@@ -8,12 +8,21 @@ from autoslug import AutoSlugField
 
 from apps.profiles.models import Profile
 
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, verbose_name=_("Course Instructor"))
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+
+    def __str__(self):
+        return self.name
+
 class CoursePublishedManager(models.Manager):
     def get_queryset(self):
         return (
             super(CoursePublishedManager, self).get_queryset().filter(published_status=True)
         )
-
 
 class Course(models.Model):
 
@@ -22,7 +31,7 @@ class Course(models.Model):
         ('Paid', 'Paid'),
     ]
 
-
+    categories = models.ManyToManyField(Category, verbose_name=_("Course Categories"),related_name="instructor")
     instructor = models.ForeignKey(Profile, verbose_name=_("Course Instructor"), related_name="instructor", on_delete=models.DO_NOTHING)
     title = models.CharField(verbose_name=_('Course Title'), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)

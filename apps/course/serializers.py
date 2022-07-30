@@ -1,10 +1,17 @@
 from rest_framework import serializers
 
-from .models import Course, Lesson
+from .models import Category, Course, Lesson
 
 """
     Should not get all the data about the course from scratch
 """
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class CourseListSerializer(serializers.ModelSerializer):
     instructor = serializers.SerializerMethodField()
 
@@ -43,10 +50,12 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 
 class CourseDetailSerializer(serializers.ModelSerializer):
     lessons = serializers.StringRelatedField(many=True)
+    
 
     class Meta:
         model = Course
         fields = [
+            'categories', 
             'title', 
             'slug', 
             'description', 
