@@ -23,7 +23,7 @@ class Rating(models.Model):
     course = models.ForeignKey(
         Course,
         verbose_name=_("Course being rated"),
-        related_name="agent_review",
+        related_name="ratings",
         on_delete=models.SET_NULL,
         null=True,
     )

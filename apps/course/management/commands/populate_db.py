@@ -35,6 +35,7 @@ class Command(BaseCommand):
             )
 
             course1.categories.add(cat1)
+            course1.categories.add(cat2)
 
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database.'))

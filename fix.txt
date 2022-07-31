@@ -18,3 +18,5 @@ Solve
 Change course_serializer = CourseSearchSerializer in app search to course_serializer = CourseListSerializer
 and fix the innerDoc error
     
+
+1.Not published Course details are showing
