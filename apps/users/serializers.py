@@ -56,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
         return representation
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
-    class Meta:
+class CreateUserSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
         model = User
         fields = ["username", "email", "first_name", "last_name", "password"]

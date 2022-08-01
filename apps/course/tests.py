@@ -109,7 +109,7 @@ class CourseTests(APITestCase):
         self.test_profile = Profile.objects.create(user=self.testuser1)
 
         data = {
-            "instructor": 1,
+            "instructor": self.test_profile,
             "title": "intro to django",
             "description": "This is an introduction to django",
             "price": "10.99",
@@ -121,4 +121,4 @@ class CourseTests(APITestCase):
 
         url = reverse('course-create')
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
