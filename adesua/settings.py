@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "djoser",
     "rest_framework_simplejwt",
     "django_elasticsearch_dsl",
+    "djcelery_email",
 ]
 
 MIDDLEWARE = [
@@ -198,10 +199,14 @@ DJOSER = {
 ELASTICSEARCH_DSL = {"default": {"hosts": "esearch"}}
 
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND =  "redis://redis:6379/0"

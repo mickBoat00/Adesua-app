@@ -11,6 +11,12 @@ services:
       - .:/django
     ports:
       - 8000:8000
+
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1
+      - CELERY_BROKER=redis://redis:6379/0/
+      - CELERY_BACKEND=redis://redis:6379/0/
     depends_on:
       - database
       - pgadmin
@@ -53,34 +59,18 @@ services:
     image: redis:alpine
     ports:
       - '6379:6379'
-  # celery:
-  #   container_name: celery
-  #   restart: always
-  #   build:
-  #     context: .
-  #   command: celery -A apps -l info
-  #   environment:
-  #     - DEBUG=1
-  #     - CELERY_BROKER=redis://redis:6379/0
-  #     - CELERY_BACKEND=redis://redis:6379:0
-  #   depends_on:
-  #     - redis
 
-  # celery-beat:
-  #   container_name: celery_beat
-  #   restart: always
-  #   build:
-  #     context: .
-  #   command: celery -A apps beat -l info
-  #   depends_on:
-  #     - redis
-  #     - celery
-
-  # flower:
-  #   container_name: flower
-  #   image: mher/flower
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - FLOWER_PORT=8888
-  #   ports:
-  #     - 8888:8888
+  celery:
+    container_name: celery
+    build: .
+    volumes:
+      - .:/django
+    command: celery -A adesua worker -l INFO
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
