@@ -46,9 +46,36 @@ class CreateLessonPerm(permissions.BasePermission):
         if courses.filter(instructor=request.user.profile).exists():
             return True
 
+class p1(permissions.BasePermission):
+
+    message = "You are not allowed to perform this action."
+
+    # def has_permission(self, request, view):
+
+    #     if request.method in permissions.SAFE_METHODS:
+    #         return True
+
+    def has_object_permission(self, request, view, obj):
+
+        print("djddjddjd")
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.instructor == request.user.profile
+
+        print("permissions.SAFE_METHODS", permissions.SAFE_METHODS)
+
+        print("ooooooooooo")
+        #     if request.user.is_anonymous:
+        #         return True
+        #     return True
+
+        # elif not request.user.is_anonymous:
+        #     return obj.instructor == request.user.profile
 
 class LessonDetailPerm(permissions.BasePermission):
-
+ 
     message = "You are not allowed to perform this action."
 
     def has_permission(self, request, view):
@@ -79,33 +106,68 @@ class LessonDetailPerm(permissions.BasePermission):
         return obj.instructor == request.user.profile
 
 
-class CourseDetailPerm(permissions.BasePermission):
+class CourseListAPIView(generics.ListAPIView):
+    queryset = Course.published.all()
+    serializer_class = CourseListSerializer
 
-    message = "You are not allowed to perform this action."
 
-    def has_permission(self, request, view):
+class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p1]
+    queryset = Course.objects.all()
+    serializer_class = CourseDetailSerializer
+    lookup_field = "slug"
 
-        if request.method in permissions.SAFE_METHODS:
-            return True
+class LessonCreateAPIView(generics.CreateAPIView):
+    permission_classes = [CreateLessonPerm]
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
 
-    def has_object_permission(self, request, view, obj):
+    """
+    Lesson model should have unique together between all fields
+    """
 
-        print("djddjddjd")
+    # def perform_create(self, serializer):
+    #     course = serializer.validated_data.get("course")
 
-        if request.method in permissions.SAFE_METHODS:
-            return True
+        # if course.instructor != self.request.user.profile:
+        #     print("here??")
+        #     return Response(
+        #         {"error": "Only course instructor can create lessons for this course."},
+        #         status=status.HTTP_403_FORBIDDEN,
+        #     )
 
-        return obj.instructor == request.user.profile
+        # else:
+        #     print("serializer", serializer)
+        # serializer.save()
 
-        print("permissions.SAFE_METHODS", permissions.SAFE_METHODS)
+class CourseLessonsAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated, LessonDetailPerm]
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    lookup_field = "slug"
 
-        print("ooooooooooo")
-        #     if request.user.is_anonymous:
-        #         return True
-        #     return True
+    def get_queryset(self):
+        return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
 
-        # elif not request.user.is_anonymous:
-        #     return obj.instructor == request.user.profile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class EnrolledStudent(permissions.BasePermission):
@@ -119,9 +181,7 @@ class EnrolledStudent(permissions.BasePermission):
             return True
 
 
-class CourseListAPIView(generics.ListAPIView):
-    queryset = Course.published.all()
-    serializer_class = CourseListSerializer
+
 
 
 class CourseCreateAPIView(generics.CreateAPIView):
@@ -140,21 +200,9 @@ class CourseCreateAPIView(generics.CreateAPIView):
         serializer.save(instructor=self.request.user.profile)
 
 
-class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [CourseDetailPerm]
-    queryset = Course.objects.all()
-    serializer_class = CourseDetailSerializer
-    lookup_field = "slug"
 
 
-class CourseLessonsAPIView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated, LessonDetailPerm]
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    lookup_field = "slug"
 
-    def get_queryset(self):
-        return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
 
 
 # class CourseLessonsAPIView(APIView):
@@ -173,24 +221,7 @@ class CourseLessonsAPIView(generics.ListAPIView):
 #         return Response(serializer.data)
 
 
-class LessonCreateAPIView(generics.CreateAPIView):
-    permission_classes = [CreateLessonPerm]
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
 
-    def perform_create(self, serializer):
-        course = serializer.validated_data.get("course")
-
-        if course.instructor != self.request.user.profile:
-            print("here??")
-            return Response(
-                {"error": "Only course instructor can create lessons for this course."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        else:
-            print("serializer", serializer)
-            serializer.save()
 
 
 class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

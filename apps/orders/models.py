@@ -2,10 +2,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from decimal import Decimal
 
+from django.db.models.signals import post_save
+
 from django.core.validators import MinValueValidator
 
 
-from apps.course.models import Course
+from apps.course.models import Course, Student
 from apps.profiles.models import Profile
 
 class OrderCourse(models.Model):
@@ -17,5 +19,15 @@ class OrderCourse(models.Model):
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ["course", "user"]
+
     def __str__(self):
         return f"{self.course.title} - {self.user.user.username}"
+
+
+# def create_student_enrollment(sender, instance, created, **kwargs):
+#     if created:
+#         Student.objects.create(course=instance.course, profile=instance.user)
+
+# post_save.connect(create_student_enrollment,  sender=OrderCourse)
