@@ -1,10 +1,10 @@
 import random
 
 import faker.providers
-from apps.course.management.commands.populate_db import Faker
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from faker import Faker
 
 User = get_user_model()
 
