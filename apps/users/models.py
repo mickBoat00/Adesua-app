@@ -1,21 +1,15 @@
 import uuid
 
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.utils.translation import gettext_lazy as _
-
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-
-from django.db.models.signals import post_save
-
 from apps.profiles.models import Profile
-
-
 
 
 class CustomUserManager(BaseUserManager):
@@ -25,9 +19,7 @@ class CustomUserManager(BaseUserManager):
         except ValidationError:
             raise ValueError(_("You must provide a valid email address"))
 
-    def create_user(
-        self, username, first_name, last_name, email, password, **extra_fields
-    ):
+    def create_user(self, username, first_name, last_name, email, password, **extra_fields):
         if not username:
             raise ValueError(_("Users must submit a username"))
 
@@ -43,13 +35,7 @@ class CustomUserManager(BaseUserManager):
         else:
             raise ValueError(_("Base User Account: An email address is required"))
 
-        user = self.model(
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            **extra_fields
-        )
+        user = self.model(username=username, first_name=first_name, last_name=last_name, email=email, **extra_fields)
 
         user.set_password(password)
         extra_fields.setdefault("is_staff", False)
@@ -57,9 +43,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(
-        self, username, first_name, last_name, email, password, **extra_fields
-    ):
+    def create_superuser(self, username, first_name, last_name, email, password, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -79,11 +63,10 @@ class CustomUserManager(BaseUserManager):
         else:
             raise ValueError(_("Admin Account: An email address is required"))
 
-        user = self.create_user(
-            username, first_name, last_name, email, password, **extra_fields
-        )
+        user = self.create_user(username, first_name, last_name, email, password, **extra_fields)
         user.save(using=self._db)
         return user
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     pkid = models.BigAutoField(primary_key=True, editable=False)
@@ -115,8 +98,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.username
 
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
-post_save.connect(create_user_profile,  sender=User)
+
+post_save.connect(create_user_profile, sender=User)

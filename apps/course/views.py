@@ -46,6 +46,7 @@ class CreateLessonPerm(permissions.BasePermission):
         if courses.filter(instructor=request.user.profile).exists():
             return True
 
+
 class p1(permissions.BasePermission):
 
     message = "You are not allowed to perform this action."
@@ -74,8 +75,9 @@ class p1(permissions.BasePermission):
         # elif not request.user.is_anonymous:
         #     return obj.instructor == request.user.profile
 
+
 class LessonDetailPerm(permissions.BasePermission):
- 
+
     message = "You are not allowed to perform this action."
 
     def has_permission(self, request, view):
@@ -117,6 +119,7 @@ class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CourseDetailSerializer
     lookup_field = "slug"
 
+
 class LessonCreateAPIView(generics.CreateAPIView):
     permission_classes = [CreateLessonPerm]
     queryset = Lesson.objects.all()
@@ -129,16 +132,17 @@ class LessonCreateAPIView(generics.CreateAPIView):
     # def perform_create(self, serializer):
     #     course = serializer.validated_data.get("course")
 
-        # if course.instructor != self.request.user.profile:
-        #     print("here??")
-        #     return Response(
-        #         {"error": "Only course instructor can create lessons for this course."},
-        #         status=status.HTTP_403_FORBIDDEN,
-        #     )
+    # if course.instructor != self.request.user.profile:
+    #     print("here??")
+    #     return Response(
+    #         {"error": "Only course instructor can create lessons for this course."},
+    #         status=status.HTTP_403_FORBIDDEN,
+    #     )
 
-        # else:
-        #     print("serializer", serializer)
-        # serializer.save()
+    # else:
+    #     print("serializer", serializer)
+    # serializer.save()
+
 
 class CourseLessonsAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, LessonDetailPerm]
@@ -150,26 +154,6 @@ class CourseLessonsAPIView(generics.ListAPIView):
         return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class EnrolledStudent(permissions.BasePermission):
     message = "You are not allowed to perform this action."
 
@@ -179,9 +163,6 @@ class EnrolledStudent(permissions.BasePermission):
         if obj.students.filter(user=self.request.user).exists():
             print("obj", obj)
             return True
-
-
-
 
 
 class CourseCreateAPIView(generics.CreateAPIView):
@@ -200,11 +181,6 @@ class CourseCreateAPIView(generics.CreateAPIView):
         serializer.save(instructor=self.request.user.profile)
 
 
-
-
-
-
-
 # class CourseLessonsAPIView(APIView):
 #     permission_classes = [IsOwner]
 
@@ -219,9 +195,6 @@ class CourseCreateAPIView(generics.CreateAPIView):
 #         serializer = LessonSerializer(lesson, many=True)
 
 #         return Response(serializer.data)
-
-
-
 
 
 class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
