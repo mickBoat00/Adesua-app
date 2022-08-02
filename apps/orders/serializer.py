@@ -4,12 +4,10 @@ from .models import OrderCourse
 
 
 class OrderCourseSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = OrderCourse
         fields = [
-            'id', 
-            'course', 
-            'price', 
+            "id",
+            "course",
+            "price",
         ]
- 

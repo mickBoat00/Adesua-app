@@ -2,9 +2,8 @@ from rest_framework import generics
 
 from apps.course.models import Student
 
-from .serializer import OrderCourseSerializer
-
 from .models import OrderCourse
+from .serializer import OrderCourseSerializer
 
 
 class PayCourseAPIView(generics.ListCreateAPIView):
