@@ -1,0 +1,3 @@
+Review LessonCreateAPIView with two different instructors
+
+Users sign up should require country and phone number 

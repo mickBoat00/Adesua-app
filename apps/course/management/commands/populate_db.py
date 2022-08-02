@@ -1,10 +1,10 @@
 import random
 
-import faker.providers
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
+import faker.providers
 
 User = get_user_model()
 
@@ -75,13 +75,13 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Number of categories: {check_category}"))
 
         # Create 10 courses with three lessons each
-        pay = ["Free", "Paid"]
+        pay = ["Paid", "Free"]
         for _ in range(10):
 
             course = Course.objects.create(
                 instructor_id=1,
-                title=fake.text(max_nb_chars=100),
-                description=fake.text(max_nb_chars=100),
+                title=fake.text(max_nb_chars=15),
+                description=fake.text(max_nb_chars=50),
                 cover_image="http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg",
                 price=(round(random.uniform(9.99, 99.99), 2)),
                 pay=random.choice(pay),
@@ -94,6 +94,7 @@ class Command(BaseCommand):
 
 
 """
+    Create users should be assigned courses
     Create default users or instrcutors 
     Lesson needed to have some videos
 """

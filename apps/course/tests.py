@@ -85,6 +85,58 @@ class Test_Create_Course(TestCase):
 
 
 class CourseTests(APITestCase):
+    def test_student_rate_course(self):
+
+        """
+        Test enrolled students of a course should be able to able to rate that course
+        """
+
+        testuser1 = User.objects.create_user(
+            username="Test",
+            first_name="Test",
+            last_name="User",
+            email="test.user@gmail.com",
+            password="pass1234567",
+        )
+
+        client = APIClient()
+        client.login(email="test.user@gmail.com", password="pass1234567")
+
+        data = {
+            "title": "intro to django",
+            "description": "This is an introduction to django",
+            "price": "10.99",
+            "pay": "Free",
+        }
+
+        url = reverse("course-create")
+        client.post(url, data, format="json")
+        client.logout()
+
+        testuser2 = User.objects.create_user(
+            username="Test 2",
+            first_name="Test 2",
+            last_name="User two",
+            email="test.user_two@gmail.com",
+            password="pass1234567",
+        )
+
+        print("cccc", Course.objects.all().values("id"))
+
+        client.login(email="test.user_two@gmail.com", password="pass1234567")
+
+        data = {"course": 3, "price": 9.99}
+
+        url = reverse("pay-course")
+        response = client.post(url, data, format="json")
+
+        data = {"course": 3, "rating": 3, "comment": "A very good course"}
+
+        url = reverse("rate-course")
+
+        response = client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_student_course_enrollment(self):
 
         """

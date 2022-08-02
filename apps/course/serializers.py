@@ -160,6 +160,7 @@ class LessonSerializer(serializers.ModelSerializer):
             "course",
             "id",
             "title",
+            "slug",
             "description",
             "video",
         ]
