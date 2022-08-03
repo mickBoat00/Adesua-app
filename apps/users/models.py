@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django_countries.fields import CountryField
 
 from apps.profiles.models import Profile
 
@@ -19,7 +20,7 @@ class CustomUserManager(BaseUserManager):
         except ValidationError:
             raise ValueError(_("You must provide a valid email address"))
 
-    def create_user(self, username, first_name, last_name, email, password, **extra_fields):
+    def create_user(self, username, first_name, last_name, email, country, city, password, **extra_fields):
         if not username:
             raise ValueError(_("Users must submit a username"))
 
@@ -35,7 +36,21 @@ class CustomUserManager(BaseUserManager):
         else:
             raise ValueError(_("Base User Account: An email address is required"))
 
-        user = self.model(username=username, first_name=first_name, last_name=last_name, email=email, **extra_fields)
+        if not country:
+            raise ValueError(_("Users must submit a country"))
+
+        if not city:
+            raise ValueError(_("Users must submit a city"))
+
+        user = self.model(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            country=country,
+            city=city,
+            **extra_fields,
+        )
 
         user.set_password(password)
         extra_fields.setdefault("is_staff", False)
@@ -43,7 +58,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, first_name, last_name, email, password, **extra_fields):
+    def create_superuser(self, username, first_name, last_name, email, country, city, password, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -63,7 +78,7 @@ class CustomUserManager(BaseUserManager):
         else:
             raise ValueError(_("Admin Account: An email address is required"))
 
-        user = self.create_user(username, first_name, last_name, email, password, **extra_fields)
+        user = self.create_user(username, first_name, last_name, email, country, city, password, **extra_fields)
         user.save(using=self._db)
         return user
 
@@ -75,12 +90,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(verbose_name=_("First Name"), max_length=50)
     last_name = models.CharField(verbose_name=_("Last Name"), max_length=50)
     email = models.EmailField(verbose_name=_("Email Address"), unique=True)
+
+    country = models.CharField(verbose_name=_("Country"), default="Ghana", max_length=100, blank=False, null=False)
+    city = models.CharField(
+        verbose_name=_("City"),
+        max_length=180,
+        default="Accra",
+        blank=False,
+        null=False,
+    )
+
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
+    REQUIRED_FIELDS = ["username", "first_name", "last_name", "country", "city"]
 
     objects = CustomUserManager()
 
@@ -101,7 +126,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance, country=instance.country, city=instance.city)
 
 
 post_save.connect(create_user_profile, sender=User)

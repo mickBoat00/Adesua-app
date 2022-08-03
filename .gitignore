@@ -142,3 +142,6 @@ data/database/
 
 
 fix.txt
+commit_msg.txt
+next_test.txt
+.vscode/

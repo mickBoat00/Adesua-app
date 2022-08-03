@@ -1,10 +1,10 @@
 import random
 
+import faker.providers
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
-import faker.providers
 
 User = get_user_model()
 
@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 username=first_name[0],
                 last_name=last_name[0],
                 email=email[0],
-                password="pass1234567",
+                password="testing321",
             )
             user.is_active = True
 

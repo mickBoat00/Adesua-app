@@ -69,8 +69,6 @@ class LessonsDetailPerm(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        print("sjjsjjssjsj")
-
         if request.method in permissions.SAFE_METHODS:
             course = Course.objects.get(slug=view.kwargs.get("slug"))
 

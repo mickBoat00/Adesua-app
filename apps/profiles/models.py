@@ -27,7 +27,7 @@ class Profile(models.Model):
         default=Gender.OTHER,
         max_length=20,
     )
-    country = CountryField(verbose_name=_("Country"), default="GH", blank=False, null=False)
+    country = models.CharField(verbose_name=_("Country"), default="Ghana", max_length=100, blank=False, null=False)
     city = models.CharField(
         verbose_name=_("City"),
         max_length=180,

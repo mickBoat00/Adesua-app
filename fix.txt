@@ -14,7 +14,7 @@ if other can create lessons for courses, they didnt create?
 
 
 
-Solve 
+Elastic Search 
 Change course_serializer = CourseSearchSerializer in app search to course_serializer = CourseListSerializer
 and fix the innerDoc error
     
