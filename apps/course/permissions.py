@@ -3,41 +3,6 @@ from rest_framework import permissions
 from .models import Course
 
 
-class IsOwner(permissions.BasePermission):
-
-    message = "You are not allowed to perform this action."
-
-    def has_permission(self, request, view):
-
-        print("obj")
-
-        return False
-
-    def has_object_permission(self, request, view, obj):
-
-        print("obj", obj)
-
-        if request.method in permissions.SAFE_METHODS:
-            if obj.course.instructor == request.user.profile:
-                return True
-            else:
-                return request.user.profile in obj.course.students.all()
-
-        return obj.course.instructor == request.user.profile
-
-
-class EnrolledStudent(permissions.BasePermission):
-    message = "You are not allowed to perform this action."
-
-    def has_object_permission(self, request, view, obj):
-        print("qqqqq")
-
-        if obj.students.filter(user=self.request.user).exists():
-            print("obj", obj)
-            return True
-
-
-# --------------------------------------------------------------------------------------------------
 class CreateLessonPerm(permissions.BasePermission):
     message = "You are not a course instructor."
 
@@ -65,7 +30,7 @@ class CourseInstrutorPerm(permissions.BasePermission):
 
 class LessonsDetailPerm(permissions.BasePermission):
 
-    message = "You are not allowed to perform this action."
+    message = "You are not enrolled in this course, hence can't view lessons."
 
     def has_permission(self, request, view):
 
@@ -85,8 +50,6 @@ class SingleLessonPerm(permissions.BasePermission):
     message = "You are not allowed to view this lesson."
 
     def has_object_permission(self, request, view, obj):
-
-        print("djddjddjd")
 
         if request.method in permissions.SAFE_METHODS:
             if obj.course.students.filter(profile=request.user.profile).exists():

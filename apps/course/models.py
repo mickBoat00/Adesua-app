@@ -40,10 +40,15 @@ class Course(TimeStampModel):
 
     categories = models.ManyToManyField(Category, verbose_name=_("Course Categories"))
     instructor = models.ForeignKey(
-        Profile, verbose_name=_("Course Instructor"), null=True, blank=True, related_name="instructor", on_delete=models.DO_NOTHING
+        Profile,
+        verbose_name=_("Course Instructor"),
+        null=True,
+        blank=True,
+        related_name="instructor",
+        on_delete=models.DO_NOTHING,
     )
-    title = models.CharField(verbose_name=_("Course Title"), max_length=100)
-    slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
+    title = models.CharField(verbose_name=_("Course Title"), unique=True, max_length=100)
+    slug = AutoSlugField(populate_from="title", editable=True, unique=True, always_update=True)
     description = models.TextField()
     cover_image = models.ImageField(verbose_name=_("Main Image"), default="default.png", upload_to="course_images")
     price = models.DecimalField(
@@ -91,7 +96,7 @@ class Student(TimeStampModel):
 class Lesson(TimeStampModel):
     course = models.ForeignKey(Course, related_name="lessons", on_delete=models.CASCADE)
     title = models.CharField(verbose_name=_("Lesson Title"), max_length=100)
-    slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
+    slug = AutoSlugField(populate_from="title", editable=True, unique=True, always_update=True)
     description = models.TextField()
     video = models.FileField(
         verbose_name=_("Lesson Video"),

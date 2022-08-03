@@ -11,8 +11,6 @@ class PayCourseAPIView(generics.ListCreateAPIView):
     serializer_class = OrderCourseSerializer
 
     def perform_create(self, serializer):
-        print("seeee", serializer.validated_data)
-
         course = serializer.validated_data.get("course")
         person = self.request.user.profile
 

@@ -20,3 +20,18 @@ and fix the innerDoc error
     
 
 1.Not published Course details are showing
+
+Review LessonCreateAPIView with two different instructors
+
+
+
+Commit messages 
+Refactored the ratings view
+
+
+
+Users sign up should require country and phone number 
+
+
+
+Output for createapiViews

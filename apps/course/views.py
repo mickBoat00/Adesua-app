@@ -1,8 +1,8 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
-from .africa_iso import iso_list
+from .african_country_list import african_countries
 from .models import Course, Lesson
 from .permissions import (
     CourseInstrutorPerm,
@@ -10,10 +10,14 @@ from .permissions import (
     LessonsDetailPerm,
     SingleLessonPerm,
 )
-from .serializers import CourseDetailSerializer, CourseListSerializer, LessonSerializer, CourseCreateSerializer
+from .serializers import (
+    CourseCreateSerializer,
+    CourseDetailSerializer,
+    CourseListSerializer,
+    LessonSerializer,
+)
 
 
-# -----------------------------------------------------------------------------------------------------------------
 class CourseListAPIView(generics.ListAPIView):
     queryset = Course.published.all()
     serializer_class = CourseListSerializer
@@ -32,12 +36,14 @@ class CourseCreateAPIView(generics.CreateAPIView):
     serializer_class = CourseCreateSerializer
 
     def perform_create(self, serializer):
-        """
-        From django_countries docs, it uses ISO 3166-1 country codes
-        """
 
-        if self.request.user.profile.country not in iso_list():
-            return Response("You are not African.")
+        if self.request.user.profile.country not in african_countries():
+            """
+            Research how to output this message instead
+            """
+            print("You are not allowed to create a ccourse")
+            # return Response({"error": "You are not African."}, status=status.HTTP_403_FORBIDDEN)
+            return
 
         serializer.save(instructor=self.request.user.profile)
 

@@ -84,8 +84,8 @@ class Command(BaseCommand):
 
             course = Course.objects.create(
                 instructor=Profile.objects.order_by("?").first(),
-                title=fake.text(max_nb_chars=15),
-                description=fake.text(max_nb_chars=50),
+                title=fake.text(max_nb_chars=30),
+                description=fake.text(max_nb_chars=70),
                 cover_image="http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg",
                 price=(round(random.uniform(9.99, 99.99), 2)),
                 pay=random.choice(pay),

@@ -7,7 +7,6 @@ from .serializers import RatingSerializer
 
 
 class CourseRating(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
 
