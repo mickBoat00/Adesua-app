@@ -40,7 +40,7 @@ class Course(TimeStampModel):
 
     categories = models.ManyToManyField(Category, verbose_name=_("Course Categories"))
     instructor = models.ForeignKey(
-        Profile, verbose_name=_("Course Instructor"), related_name="instructor", on_delete=models.DO_NOTHING
+        Profile, verbose_name=_("Course Instructor"), null=True, blank=True, related_name="instructor", on_delete=models.DO_NOTHING
     )
     title = models.CharField(verbose_name=_("Course Title"), max_length=100)
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)

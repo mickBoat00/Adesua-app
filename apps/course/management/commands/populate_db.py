@@ -1,14 +1,16 @@
 import random
 
-import faker.providers
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
+import faker.providers
+
 
 User = get_user_model()
 
 from apps.course.models import Category, Course, Lesson
+from apps.profiles.models import Profile
 
 CATEGORIES = [
     "Django",
@@ -61,6 +63,8 @@ class Command(BaseCommand):
                 first_name=first_name[0],
                 username=first_name[0],
                 last_name=last_name[0],
+                country="Ghana",
+                city="Accra",
                 email=email[0],
                 password="testing321",
             )
@@ -79,7 +83,7 @@ class Command(BaseCommand):
         for _ in range(10):
 
             course = Course.objects.create(
-                instructor_id=1,
+                instructor=Profile.objects.order_by("?").first(),
                 title=fake.text(max_nb_chars=15),
                 description=fake.text(max_nb_chars=50),
                 cover_image="http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg",

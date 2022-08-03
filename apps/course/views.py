@@ -10,7 +10,7 @@ from .permissions import (
     LessonsDetailPerm,
     SingleLessonPerm,
 )
-from .serializers import CourseDetailSerializer, CourseListSerializer, LessonSerializer
+from .serializers import CourseDetailSerializer, CourseListSerializer, LessonSerializer, CourseCreateSerializer
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CourseCreateAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Course.objects.all()
-    serializer_class = CourseListSerializer
+    serializer_class = CourseCreateSerializer
 
     def perform_create(self, serializer):
         """
