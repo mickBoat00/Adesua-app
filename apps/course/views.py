@@ -35,17 +35,17 @@ class CourseCreateAPIView(generics.CreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseCreateSerializer
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
 
-        if self.request.user.profile.country not in african_countries():
-            """
-            Research how to output this message instead
-            """
-            print("You are not allowed to create a ccourse")
-            # return Response({"error": "You are not African."}, status=status.HTTP_403_FORBIDDEN)
-            return
+        if request.user.profile.country not in african_countries():
+            return Response({"error": "Sorry you are not an african"}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer.save(instructor=self.request.user.profile)
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class CourseLessonsAPIView(generics.ListAPIView):
