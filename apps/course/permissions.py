@@ -34,8 +34,9 @@ class LessonsDetailPerm(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
+        course = Course.objects.get(slug=view.kwargs.get("slug"))
+
         if request.method in permissions.SAFE_METHODS:
-            course = Course.objects.get(slug=view.kwargs.get("slug"))
 
             if course.instructor == request.user.profile:
                 return True

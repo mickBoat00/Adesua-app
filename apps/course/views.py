@@ -4,14 +4,8 @@ from rest_framework import filters, generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
-from .african_country_list import african_countries
 from .models import Course, Curriculum, Lesson
-from .permissions import (
-    CourseInstrutorPerm,
-    CreateLessonPerm,
-    LessonsDetailPerm,
-    SingleLessonPerm,
-)
+from .permissions import CourseInstrutorPerm, LessonsDetailPerm, SingleLessonPerm
 from .serializers import (
     CourseCreateSerializer,
     CourseDetailSerializer,
@@ -56,18 +50,6 @@ class CourseCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(instructor=self.request.user.profile)
 
-    # def create(self, request, *args, **kwargs):
-
-    #     if request.user.profile.country not in african_countries():
-    #         return Response({"error": "Sorry you are not an african"}, status=status.HTTP_403_FORBIDDEN)
-
-    #     serializer = self.get_serializer(data=request.data)
-
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class CourseLessonsAPIView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, LessonsDetailPerm]
@@ -90,19 +72,3 @@ class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     lookup_field = "slug"
-
-
-# class LessonCreateAPIView(generics.CreateAPIView):
-#     """
-#     A little bug in permissions.
-#     Can any course instrutor create lesson for it
-#     """
-
-#     permission_classes = [CreateLessonPerm]
-#     queryset = Lesson.objects.all()
-#     serializer_class = LessonSerializer
-
-
-#     """
-#     Lesson model should have unique together between all fields
-#     """

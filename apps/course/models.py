@@ -94,6 +94,7 @@ class Course(TimeStampModel):
     class Meta:
         verbose_name = "Course"
         verbose_name_plural = "Courses"
+        ordering = ("-created_on",)
 
     def save(self, *args, **kwargs):
         self.title = str.title(self.title)
