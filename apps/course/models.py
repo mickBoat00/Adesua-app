@@ -27,7 +27,7 @@ class Curriculum(TimeStampModel):
 
 
 class Year(TimeStampModel):
-    value = models.CharField(max_length=2, verbose_name=_("School Year"))
+    value = models.CharField(max_length=2, unique=True, verbose_name=_("School Year"))
 
     def __str__(self):
         return self.value

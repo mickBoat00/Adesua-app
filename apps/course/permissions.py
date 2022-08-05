@@ -45,6 +45,8 @@ class LessonsDetailPerm(permissions.BasePermission):
 
             return False
 
+        return course.instructor == request.user.profile
+
 
 class SingleLessonPerm(permissions.BasePermission):
     message = "You are not allowed to view this lesson."

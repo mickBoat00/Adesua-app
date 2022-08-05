@@ -2,39 +2,6 @@ from rest_framework import serializers
 
 from .models import Course, Lesson
 
-"""
-    Should not get all the data about the course from scratch
-"""
-
-
-# class CategorySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Category
-#         fields = "__all__"
-
-
-# class CourseListSerializer(serializers.ModelSerializer):
-#     instructor = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = Course
-#         fields = [
-#             'id',
-#             'instructor',
-#             'title',
-#             'slug',
-#             'description',
-#             'cover_image',
-#             'price',
-#             'rating',
-#             'raters',
-#             'pay',
-#         ]
-#         read_only_fields = ['slug','rating', 'raters']
-
-#     def get_instructor(self, obj):
-#         return obj.instructor.user.get_full_name
-
 
 class CourseListSerializer(serializers.ModelSerializer):
     curriculum = serializers.StringRelatedField(many=False)
@@ -51,6 +18,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             "id",
             "instructor",
             "title",
+            "slug",
             "cover_image",
             "price",
             "rating",
@@ -159,15 +127,17 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    course = serializers.PrimaryKeyRelatedField(many=False, queryset=Course.objects.all())
+    # course = serializers.PrimaryKeyRelatedField(many=False, queryset=Course.objects.all())
 
     class Meta:
         model = Lesson
         fields = [
-            "course",
+            # "course",
             "id",
             "title",
             "slug",
             "description",
             "video",
         ]
+
+        read_only = ["course"]

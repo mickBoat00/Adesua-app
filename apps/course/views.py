@@ -1,3 +1,5 @@
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
@@ -17,19 +19,26 @@ from .serializers import (
     LessonSerializer,
 )
 
-# class CourseFilter(django_filters.FilterSet):
-#     curriculum = django_filters.CharFilter(field_name="curriculum", lookup_expr="iexact")
+
+class CourseFilter(django_filters.FilterSet):
+    curriculum__name = django_filters.CharFilter(lookup_expr="iexact")
+    year__value = django_filters.CharFilter(lookup_expr="iexact")
+
+    class Meta:
+        model = Course
+        fields = ["curriculum__name", "year__value"]
 
 
 class CourseListAPIView(generics.ListAPIView):
     queryset = Course.published.all()
     serializer_class = CourseListSerializer
     filter_backends = [
-        # DjangoFilterBackend,
+        DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter,
     ]
-    ordering_fields = ["id"]
+
+    filterset_class = CourseFilter
 
 
 class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -60,21 +69,27 @@ class CourseCreateAPIView(generics.CreateAPIView):
     #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# class CourseLessonsAPIView(generics.ListAPIView):
-#     permission_classes = [permissions.IsAuthenticated, LessonsDetailPerm]
-#     queryset = Lesson.objects.all()
-#     serializer_class = LessonSerializer
-#     lookup_field = "slug"
+class CourseLessonsAPIView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated, LessonsDetailPerm]
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    lookup_field = "slug"
 
-#     def get_queryset(self):
-#         return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
+    def get_queryset(self):
+        return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
+
+    def perform_create(self, serializer):
+
+        course = Course.objects.get(slug=self.kwargs.get("slug"))
+
+        serializer.save(course=course)
 
 
-# class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-#     permission_classes = [permissions.IsAuthenticated, SingleLessonPerm]
-#     queryset = Lesson.objects.all()
-#     serializer_class = LessonSerializer
-#     lookup_field = "slug"
+class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated, SingleLessonPerm]
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    lookup_field = "slug"
 
 
 # class LessonCreateAPIView(generics.CreateAPIView):
@@ -86,6 +101,7 @@ class CourseCreateAPIView(generics.CreateAPIView):
 #     permission_classes = [CreateLessonPerm]
 #     queryset = Lesson.objects.all()
 #     serializer_class = LessonSerializer
+
 
 #     """
 #     Lesson model should have unique together between all fields

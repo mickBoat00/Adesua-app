@@ -14,13 +14,13 @@ class LessonInLine(admin.StackedInline):
 
 class CourseAdmin(admin.ModelAdmin):
     inlines = [LessonInLine]
-    list_display = ["title", "slug", "pay", "price"]
-    list_filter = ["price", "pay"]
+    list_display = ["curriculum", "year", "title", "slug", "pay", "price"]
+    list_filter = ["curriculum", "year", "price", "pay"]
     readonly_fields = ["slug", "created_on", "updated_on"]
 
 
 admin.site.register(Course, CourseAdmin)
 
 
-# admin.site.register(Lesson)
+admin.site.register(Lesson)
 admin.site.register(Student)

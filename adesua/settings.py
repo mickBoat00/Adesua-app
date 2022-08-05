@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_elasticsearch_dsl",
     "djcelery_email",
+    "django_filters",
     "apps.course",
     "apps.users",
     "apps.profiles",
