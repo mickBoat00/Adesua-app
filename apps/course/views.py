@@ -1,9 +1,9 @@
-from rest_framework import generics, permissions, status
+from rest_framework import filters, generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
 from .african_country_list import african_countries
-from .models import Course, Lesson
+from .models import Course, Curriculum, Lesson
 from .permissions import (
     CourseInstrutorPerm,
     CreateLessonPerm,
@@ -17,10 +17,19 @@ from .serializers import (
     LessonSerializer,
 )
 
+# class CourseFilter(django_filters.FilterSet):
+#     curriculum = django_filters.CharFilter(field_name="curriculum", lookup_expr="iexact")
+
 
 class CourseListAPIView(generics.ListAPIView):
     queryset = Course.published.all()
     serializer_class = CourseListSerializer
+    filter_backends = [
+        # DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    ordering_fields = ["id"]
 
 
 class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -35,46 +44,49 @@ class CourseCreateAPIView(generics.CreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseCreateSerializer
 
-    def create(self, request, *args, **kwargs):
+    def perform_create(self, serializer):
+        serializer.save(instructor=self.request.user.profile)
 
-        if request.user.profile.country not in african_countries():
-            return Response({"error": "Sorry you are not an african"}, status=status.HTTP_403_FORBIDDEN)
+    # def create(self, request, *args, **kwargs):
 
-        serializer = self.get_serializer(data=request.data)
+    #     if request.user.profile.country not in african_countries():
+    #         return Response({"error": "Sorry you are not an african"}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     serializer = self.get_serializer(data=request.data)
 
-
-class CourseLessonsAPIView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated, LessonsDetailPerm]
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    lookup_field = "slug"
-
-    def get_queryset(self):
-        return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticated, SingleLessonPerm]
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    lookup_field = "slug"
+# class CourseLessonsAPIView(generics.ListAPIView):
+#     permission_classes = [permissions.IsAuthenticated, LessonsDetailPerm]
+#     queryset = Lesson.objects.all()
+#     serializer_class = LessonSerializer
+#     lookup_field = "slug"
+
+#     def get_queryset(self):
+#         return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
 
 
-class LessonCreateAPIView(generics.CreateAPIView):
-    """
-    A little bug in permissions.
-    Can any course instrutor create lesson for it
-    """
+# class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+#     permission_classes = [permissions.IsAuthenticated, SingleLessonPerm]
+#     queryset = Lesson.objects.all()
+#     serializer_class = LessonSerializer
+#     lookup_field = "slug"
 
-    permission_classes = [CreateLessonPerm]
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
 
-    """
-    Lesson model should have unique together between all fields
-    """
+# class LessonCreateAPIView(generics.CreateAPIView):
+#     """
+#     A little bug in permissions.
+#     Can any course instrutor create lesson for it
+#     """
+
+#     permission_classes = [CreateLessonPerm]
+#     queryset = Lesson.objects.all()
+#     serializer_class = LessonSerializer
+
+#     """
+#     Lesson model should have unique together between all fields
+#     """

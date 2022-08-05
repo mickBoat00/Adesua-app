@@ -1,16 +1,16 @@
 from rest_framework import serializers
 
-from .models import Category, Course, Lesson
+from .models import Course, Lesson
 
 """
     Should not get all the data about the course from scratch
 """
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = "__all__"
+# class CategorySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Category
+#         fields = "__all__"
 
 
 # class CourseListSerializer(serializers.ModelSerializer):
@@ -37,19 +37,20 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CourseListSerializer(serializers.ModelSerializer):
+    curriculum = serializers.StringRelatedField(many=False)
+    year = serializers.StringRelatedField(many=False)
     instructor = serializers.SerializerMethodField()
-
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
         fields = [
+            "curriculum",
+            "year",
             "id",
             "instructor",
             "title",
-            "slug",
-            "description",
             "cover_image",
             "price",
             "rating",
@@ -78,36 +79,9 @@ class CourseListSerializer(serializers.ModelSerializer):
         return obj.ratings.count()
 
 
-class CourseSearchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = [
-            "id",
-            "title",
-            "slug",
-            "cover_image",
-            "price",
-            "rating",
-            "raters",
-            "pay",
-        ]
-        read_only_fields = ["slug", "rating", "raters"]
-
-
-class CourseCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = [
-            "title",
-            "description",
-            "cover_image",
-            "price",
-            "pay",
-            "published_status",
-        ]
-
-
 class CourseDetailSerializer(serializers.ModelSerializer):
+    curriculum = serializers.StringRelatedField(many=False)
+    year = serializers.StringRelatedField(many=False)
     lessons = serializers.StringRelatedField(many=True)
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
@@ -116,7 +90,9 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
-            "categories",
+            "curriculum",
+            "year",
+            "id",
             "title",
             "slug",
             "description",
@@ -149,6 +125,37 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     def get_students(self, obj):
         return obj.students.count()
+
+
+class CourseSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "cover_image",
+            "price",
+            "rating",
+            "raters",
+            "pay",
+        ]
+        read_only_fields = ["slug", "rating", "raters"]
+
+
+class CourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = [
+            "curriculum",
+            "year",
+            "title",
+            "description",
+            "cover_image",
+            "price",
+            "pay",
+            "published_status",
+        ]
 
 
 class LessonSerializer(serializers.ModelSerializer):

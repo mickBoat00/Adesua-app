@@ -16,14 +16,21 @@ class TimeStampModel(models.Model):
         abstract = True
 
 
-class Category(TimeStampModel):
-    name = models.CharField(max_length=50, verbose_name=_("Course Instructor"))
+class Curriculum(TimeStampModel):
+    name = models.CharField(max_length=10, verbose_name=_("Course Curriculum"))
 
     class Meta:
-        verbose_name_plural = "Categories"
+        verbose_name_plural = "Curriculum"
 
     def __str__(self):
         return self.name
+
+
+class Year(TimeStampModel):
+    value = models.CharField(max_length=2, verbose_name=_("School Year"))
+
+    def __str__(self):
+        return self.value
 
 
 class CoursePublishedManager(models.Manager):
@@ -38,7 +45,8 @@ class Course(TimeStampModel):
         ("Paid", "Paid"),
     ]
 
-    categories = models.ManyToManyField(Category, verbose_name=_("Course Categories"))
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE, verbose_name=_("Course Syllables"))
+    year = models.ForeignKey(Year, on_delete=models.CASCADE, verbose_name=_("Class Level"))
     instructor = models.ForeignKey(
         Profile,
         verbose_name=_("Course Instructor"),
@@ -47,7 +55,7 @@ class Course(TimeStampModel):
         related_name="instructor",
         on_delete=models.DO_NOTHING,
     )
-    title = models.CharField(verbose_name=_("Course Title"), unique=True, max_length=100)
+    title = models.CharField(verbose_name=_("Course Title"), max_length=100)
     slug = AutoSlugField(populate_from="title", editable=True, unique=True, always_update=True)
     description = models.TextField()
     cover_image = models.ImageField(verbose_name=_("Main Image"), default="default.png", upload_to="course_images")

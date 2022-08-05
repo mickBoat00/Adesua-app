@@ -167,7 +167,6 @@ SIMPLE_JWT = {
         "Bearer",
         "JWT",
     ),
-    
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "SIGNING_KEY": env("SIGNING_KEY"),
@@ -209,4 +208,4 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND =  "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"

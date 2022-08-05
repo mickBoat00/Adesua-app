@@ -1,0 +1,16 @@
+A teacher from a pretigious school with create course and lessons
+The course is to follow a particular curriculum
+
+The course created by a teacher has to be approved by a reviewer
+admin will delete a course 
+
+
+reviewer from a course is assigned by admin
+
+
+question 
+how to i handle sign up for different teacher, student, reviewers
+
+re
+
+Admin will create reviewers
