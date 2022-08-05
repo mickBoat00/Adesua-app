@@ -105,7 +105,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "pay",
             "published_status",
         ]
-        read_only_fields = ["slug", "rating", "raters", "students"]
+        read_only_fields = ["slug", "rating", "raters", "status", "students"]
 
     def get_rating(self, obj):
         total_ratings = 0

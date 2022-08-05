@@ -43,17 +43,18 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "djoser",
+    "rest_framework_simplejwt",
+    "django_elasticsearch_dsl",
+    "djcelery_email",
     "apps.course",
     "apps.users",
     "apps.profiles",
     "apps.orders",
     "apps.ratings",
     "apps.search",
-    "rest_framework",
-    "djoser",
-    "rest_framework_simplejwt",
-    "django_elasticsearch_dsl",
-    "djcelery_email",
+    "apps.reviewers",
 ]
 
 MIDDLEWARE = [

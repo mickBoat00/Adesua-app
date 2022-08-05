@@ -35,7 +35,7 @@ class Year(TimeStampModel):
 
 class CoursePublishedManager(models.Manager):
     def get_queryset(self):
-        return super(CoursePublishedManager, self).get_queryset().filter(published_status=True)
+        return super(CoursePublishedManager, self).get_queryset().filter(status="Approved", published_status=True)
 
 
 class Course(TimeStampModel):
@@ -43,6 +43,11 @@ class Course(TimeStampModel):
     PAY_CHOICES = [
         ("Free", "Free"),
         ("Paid", "Paid"),
+    ]
+
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Approved", "Approved"),
     ]
 
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE, verbose_name=_("Course Syllables"))
@@ -72,6 +77,13 @@ class Course(TimeStampModel):
         max_length=4,
         choices=PAY_CHOICES,
         default="Free",
+    )
+
+    status = models.CharField(
+        verbose_name=_("Status"),
+        max_length=8,
+        choices=STATUS_CHOICES,
+        default="Pending",
     )
 
     published_status = models.BooleanField(verbose_name=_("Published Status"), default=False)
