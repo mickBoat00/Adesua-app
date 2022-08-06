@@ -47,7 +47,22 @@ class CourseListSerializer(serializers.ModelSerializer):
         return obj.ratings.count()
 
 
+class InstructorCourseInlineSerializer(serializers.Serializer):
+    title = serializers.CharField(read_only=True)
+
+
+class InstructorProfileSerializer(serializers.Serializer):
+    user = serializers.CharField()
+    about_me = serializers.CharField()
+    other_course = serializers.SerializerMethodField(read_only=True)
+
+    def get_other_course(self, obj):
+        instructor_courses = obj.instructor.all()[:4]
+        return InstructorCourseInlineSerializer(instructor_courses, many=True).data
+
+
 class CourseDetailSerializer(serializers.ModelSerializer):
+    instructor = InstructorProfileSerializer()
     curriculum = serializers.StringRelatedField(many=False)
     year = serializers.StringRelatedField(many=False)
     lessons = serializers.StringRelatedField(many=True)
@@ -72,6 +87,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "lessons",
             "pay",
             "published_status",
+            "instructor",
         ]
         read_only_fields = ["slug", "rating", "raters", "status", "students"]
 

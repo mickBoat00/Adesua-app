@@ -1,11 +1,10 @@
+from apps.course.models import Course, Curriculum, Lesson, Student, Year
+from apps.profiles.models import Profile
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-
-from apps.course.models import Course, Lesson, Student
-from apps.profiles.models import Profile
 
 User = get_user_model()
 
@@ -18,9 +17,10 @@ User = get_user_model()
     Will a student table (student, course) enrolled be better then manytomanyfield in student
 """
 
-class CourseTests(APITestCase):
 
+class CourseTests(APITestCase):
     def setUp(self):
+
         self.testuser1 = User.objects.create_user(
             username="Test",
             first_name="Test",
@@ -31,10 +31,16 @@ class CourseTests(APITestCase):
             password="pass1234567",
         )
 
+        self.test_curriculum = Curriculum.objects.create(name="GCSE")
+
+        self.test_year = Year.objects.create(value=10)
+
         self.test_course = Course.objects.create(
+            curriculum=self.test_curriculum,
+            year=self.test_year,
             instructor=self.testuser1.profile,
-            title="intro to django",
-            description="This is an introduction to django",
+            title="Mathematics",
+            description="This is a GCSE mathematice course for GCSE students.",
             price="10.99",
             pay="Free",
             published_status=True,
@@ -50,7 +56,7 @@ class CourseTests(APITestCase):
             password="pass1234567",
         )
 
-
+        self.client = APIClient()
 
     def test_view_courses(self):
         """
@@ -67,7 +73,7 @@ class CourseTests(APITestCase):
         Test view a particular course created.
         """
 
-        url = reverse("course-detail", kwargs={"slug": "intro-to-django"})
+        url = reverse("course-detail", kwargs={"slug": "mathematics"})
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -77,19 +83,25 @@ class CourseTests(APITestCase):
         An authenticated user should be able to create a course
         """
 
-        client = APIClient()
-        client.login(email="test.user@gmail.com", password="pass1234567")
-
         data = {
-            "title": "intro to noo",
-            "description": "This is an introduction to django",
+            "curriculum": self.test_curriculum.id,
+            "year": self.test_year.id,
+            "title": "Science",
+            "description": "This is a science ccourse for GCSE",
             "price": "10.99",
             "pay": "Free",
             "published_status": True,
         }
 
         url = reverse("course-create")
-        response = client.post(url, data, format="json")
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.login(email="test.user@gmail.com", password="pass1234567")
+
+        url = reverse("course-create")
+        response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -100,31 +112,15 @@ class CourseTests(APITestCase):
         Expected result is user2 should be Forbidden from creating a lesson for a course he didn't create
         """
 
-        client = APIClient()
-        client.login(email="test.user@gmail.com", password="pass1234567")
+        self.client.logout()
 
-        data = {
-            "title": "intro to django",
-            "description": "This is an introduction to django",
-            "price": "10.99",
-            "pay": "Free",
-            "published_status": True,
-        }
+        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
 
-        url = reverse("course-create")
-        client.post(url, data, format="json")
-        client.logout()
+        lesson_data = {"title": "Lesson One", "slug": "lesson-one", "description": "Love this course"}
 
-        
-        client.login(email="test.user_two@gmail.com", password="pass1234567")
-
-        lesson_data = {"course": 1, "title": "Lesson One", "description": "Love this course"}
-
-        url = reverse("lesson-create")
-        response = client.post(url, lesson_data, format="json")
+        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
+        response = self.client.post(url, lesson_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    
 
     def test_student_course_lessons_access(self):
 
@@ -132,24 +128,12 @@ class CourseTests(APITestCase):
         Test a situation where a user can't access a lessons of course, he is not enrolled in.
         """
 
-        client = APIClient()
-        client.login(email="test.user@gmail.com", password="pass1234567")
+        self.client.logout()
 
-        data = {
-            "title": "intro to django",
-            "description": "This is an introduction to django",
-            "price": "10.99",
-            "pay": "Free",
-        }
+        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
 
-        url = reverse("course-create")
-        client.post(url, data, format="json")
-        client.logout()
-
-        client.login(email="test.user_two@gmail.com", password="pass1234567")
-
-        url = reverse("course-lesson", kwargs={"slug": "intro-to-django"})
-        response = client.get(url, format="json")
+        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_course(self):
@@ -159,28 +143,20 @@ class CourseTests(APITestCase):
         Expected result is user2 should be Forbidden from updating course he didn't create
         """
 
-        client = APIClient()
-        client.login(email="test.user@gmail.com", password="pass1234567")
-
-        data = {
-            "title": "intro to django",
-            "description": "This is an introduction to django",
-            "price": "10.99",
-            "pay": "Free",
-        }
-
-        url = reverse("course-create")
-        client.post(url, data, format="json")
-        client.logout()
-
-        client.login(email="test.user_two@gmail.com", password="pass1234567")
+        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
 
         update_course = {"price": "9.99", "pay": "Paid", "published_status": "True"}
 
-        url = reverse("course-detail", kwargs={"slug": "intro-to-django"})
-        response = client.patch(url, update_course, format="json")
+        url = reverse("course-detail", kwargs={"slug": "mathematics"})
+        response = self.client.patch(url, update_course, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+        self.client.logout()
+
+        self.client.login(email="test.user@gmail.com", password="pass1234567")
+        url = reverse("course-detail", kwargs={"slug": "mathematics"})
+        response = self.client.patch(url, update_course, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_student_course_enrollment(self):
 
@@ -188,29 +164,15 @@ class CourseTests(APITestCase):
         Test a situation where a user access lessons of course, he is enrolled in.
         """
 
-        client = APIClient()
-        client.login(email="test.user@gmail.com", password="pass1234567")
+        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
 
-        data = {
-            "title": "intro to react",
-            "description": "This is an introduction to django",
-            "price": "10.99",
-            "pay": "Free",
-        }
-
-        url = reverse("course-create")
-        client.post(url, data, format="json")
-        client.logout()
-
-        client.login(email="test.user_two@gmail.com", password="pass1234567")
-
-        data = {"course": 3, "price": 9.99}
+        data = {"course": self.test_course.id, "price": 10.99}
 
         url = reverse("pay-course")
-        response = client.post(url, data, format="json")
+        response = self.client.post(url, data, format="json")
 
-        url = reverse("course-lesson", kwargs={"slug": "intro-to-django"})
-        response = client.get(url, format="json")
+        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_student_rate_course(self):
@@ -220,31 +182,17 @@ class CourseTests(APITestCase):
         Test enrolled student should be able to rate the course if not i love the fact that we coding
         """
 
-        client = APIClient()
+        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
 
-        client.login(email="test.user@gmail.com", password="pass1234567")
-
-        data = {
-            "title": "intro to django",
-            "description": "This is an introduction to django",
-            "price": "10.99",
-            "pay": "Free",
-        }
-
-        url = reverse("course-create")
-        client.post(url, data, format="json")
-        client.logout()
-
-        client.login(email="test.user_two@gmail.com", password="pass1234567")
-
-        data = {"course": 5, "price": 9.99}
+        data = {"course": self.test_course.id, "price": 10.99}
 
         url = reverse("pay-course")
-        response = client.post(url, data, format="json")
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        data = {"course": 5, "rating": 4, "comment": "This is an amazing course."}
+        data = {"course": self.test_course.id, "rating": 4, "comment": "This is an amazing course."}
 
         url = reverse("rate-course")
 
-        response = client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(url, data, format="json")
+        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)

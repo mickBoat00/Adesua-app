@@ -15,7 +15,7 @@ urlpatterns = [
     path("api/reviewers/", include("apps.reviewers.urls")),
     path("api/auth/", include("djoser.urls")),
     path("api/auth/", include("djoser.urls.jwt")),
-    path("api/doc/", include_docs_urls(title="AdesuaAPI")),
+    path("docs/", include_docs_urls(title="AdesuaAPI")),
     path(
         "schema",
         get_schema_view(title="Adesua API", description="API for the Adesua Platform Backend..", version="1.0.0"),

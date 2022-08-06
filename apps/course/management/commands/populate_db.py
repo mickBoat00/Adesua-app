@@ -88,13 +88,15 @@ class Command(BaseCommand):
         fake = Faker("tw_GH")
         fake.add_provider(Provider)
 
+        user_list = []
+
         # Create three users
         for _ in range(5):
             first_name = fake.first_name()
             last_name = fake.last_name()
             email = f"{first_name}-{last_name}@gmail.com"
 
-            user = User.objects.create_user(
+            user = User(
                 first_name=first_name,
                 username=first_name,
                 last_name=last_name,
@@ -102,24 +104,36 @@ class Command(BaseCommand):
                 city="Accra",
                 email=email,
                 password="testing321",
+                is_active=True,
             )
-            user.is_active = True
+
+            user_list.append(user)
+
+        User.objects.bulk_create(user_list)
+
+        curriculum_list = []
 
         # Create a number of CURRICULUM_LIST
         for _ in range(len(CURRICULUM_LIST)):
             data = fake.unique.course_curriculum()
-            Curriculum.objects.create(name=data)
+            curriculum = Curriculum(name=data)
+            curriculum_list.append(curriculum)
 
-        # Create a number of CURRICULUM_LIST
+        Curriculum.objects.bulk_create(curriculum_list)
+
+        year_list = []
+
+        # Create a number of school year
         for _ in range(len(YEAR_LIST)):
             data = fake.unique.year_list()
-            Year.objects.create(value=data)
+            year = Year(value=data)
+            year_list.append(year)
 
-        check_curriculum = Curriculum.objects.all().count()
-        check_year = Year.objects.all().count()
+        Year.objects.bulk_create(year_list)
+
         self.stdout.write(
             self.style.SUCCESS(
-                f"Number of curriculum created: {check_curriculum}, Number of school years created: {check_year}."
+                f"Number of curriculum created: {len(curriculum_list)}, Number of school years created: {len(year_list)}."
             )
         )
 
@@ -140,13 +154,5 @@ class Command(BaseCommand):
                 published_status=True,
             )
 
-        #     for i in range(len(LESSON_TITLE)):
-
-        #         Lesson.objects.create(course_id=course.id, title=LESSON_TITLE[i], description="I love what this it")
-
-
-"""
-    Create users should be assigned courses
-    Create default users or instrcutors 
-    Lesson needed to have some videos
-"""
+            for i in range(len(LESSON_TITLE)):
+                Lesson.objects.create(course_id=course.id, title=LESSON_TITLE[i], description="I love what this it")

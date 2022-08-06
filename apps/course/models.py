@@ -58,7 +58,7 @@ class Course(TimeStampModel):
         null=True,
         blank=True,
         related_name="instructor",
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
     )
     title = models.CharField(verbose_name=_("Course Title"), max_length=100)
     slug = AutoSlugField(populate_from="title", editable=True, unique=True, always_update=True)
