@@ -1,4 +1,4 @@
-# Why Adesua?
+# Adesua
 #### What is Adesua
 Adesua is a ghanaian language word for education. Adesua is a platform where parents can get access to lessons for their wards based on their current school year and school curriculum.
 
