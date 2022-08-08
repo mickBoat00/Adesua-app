@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from rest_framework import serializers
 
 from .models import Course, Lesson
@@ -92,17 +93,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ["slug", "rating", "raters", "status", "students"]
 
     def get_rating(self, obj):
-        total_ratings = 0
-
-        for rating in obj.ratings.all():
-            total_ratings += rating.rating
-
-        num_raters = obj.ratings.count()
-
-        if num_raters <= 0:
-            return 0
-
-        return total_ratings / num_raters
+        return obj.ratings.all().aggregate(Avg("rating"))
 
     def get_raters(self, obj):
         return obj.ratings.count()
