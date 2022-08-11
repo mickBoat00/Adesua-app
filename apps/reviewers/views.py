@@ -6,11 +6,12 @@ from rest_framework.decorators import permission_classes
 from rest_framework.pagination import PageNumberPagination
 
 from apps.course.models import Course, Curriculum, Lesson
+from apps.course.tasks import add
+from apps.reviewers.tasks import send_course_email
 from apps.users.models import User
 from apps.users.serializers import CreateUserSerializer
 
 from .serializers import PendingCourseListSerializer
-from .tasks import send_course_approved_email
 
 # Admin will create reviewers
 # Reviewers will change their password
@@ -42,8 +43,7 @@ class PendingCourseListAPIView(generics.ListAPIView):
     pagination_class = PendingCoursePagination
 
     def get_queryset(self):
-        # return Course.objects.filter(status="Pending")
-        return Course.objects.all()
+        return Course.objects.filter(status="Pending")
 
 
 class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
@@ -53,16 +53,16 @@ class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
     pagination_class = PendingCoursePagination
 
     def get_queryset(self):
-        # return Course.objects.filter(status="Pending")
-        return Course.objects.all()
+        return Course.objects.filter(status="Pending")
 
     def perform_update(self, serializer):
 
         if serializer.validated_data.get("status") == "Approved":
             course = Course.objects.get(slug=self.kwargs.get("slug"))
+            course_title = course.title
             instructor_email = course.instructor.user.email
 
-            send_course_approved_email.delay(course.title, instructor_email)
+            send_course_email.delay(course_title, instructor_email)
 
         return super().perform_update(serializer)
 

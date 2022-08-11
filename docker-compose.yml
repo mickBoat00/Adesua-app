@@ -64,7 +64,7 @@ services:
     build: .
     volumes:
       - .:/django
-    command: celery -A adesua worker -l INFO
+    command: celery -A adesua worker -l info
     environment:
       - DEBUG=1
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
