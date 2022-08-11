@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from rest_framework import serializers
 
 from apps.course.models import Course, Lesson
@@ -54,10 +55,10 @@ class PendingCourseListSerializer(serializers.ModelSerializer):
             "status",
         ]
         read_only_fields = [
-            "instructor",
+            # "instructor",
             "curriculum",
             "year",
-            "id",
+            # "id",
             "title",
             "description",
             "cover_image",
@@ -75,17 +76,7 @@ class PendingCourseListSerializer(serializers.ModelSerializer):
         return obj.instructor.user.get_full_name
 
     def get_rating(self, obj):
-        total_ratings = 0
-
-        for rating in obj.ratings.all():
-            total_ratings += rating.rating
-
-        num_raters = obj.ratings.count()
-
-        if num_raters <= 0:
-            return 0
-
-        return total_ratings / num_raters
+        return obj.ratings.all().aggregate(Avg("rating"))
 
     def get_raters(self, obj):
         return obj.ratings.count()

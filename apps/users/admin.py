@@ -19,6 +19,7 @@ class UserAdmin(BaseUserAdmin):
         "first_name",
         "last_name",
         "is_staff",
+        "is_superuser",
         "is_active",
     ]
     list_display_links = ["id", "email"]

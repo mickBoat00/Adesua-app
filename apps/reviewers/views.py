@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.pagination import PageNumberPagination
@@ -7,6 +10,7 @@ from apps.users.models import User
 from apps.users.serializers import CreateUserSerializer
 
 from .serializers import PendingCourseListSerializer
+from .tasks import send_course_approved_email
 
 # Admin will create reviewers
 # Reviewers will change their password
@@ -38,7 +42,8 @@ class PendingCourseListAPIView(generics.ListAPIView):
     pagination_class = PendingCoursePagination
 
     def get_queryset(self):
-        return Course.objects.filter(status="Pending")
+        # return Course.objects.filter(status="Pending")
+        return Course.objects.all()
 
 
 class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
@@ -48,15 +53,27 @@ class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
     pagination_class = PendingCoursePagination
 
     def get_queryset(self):
-        return Course.objects.filter(status="Pending")
+        # return Course.objects.filter(status="Pending")
+        return Course.objects.all()
+
+    def perform_update(self, serializer):
+
+        if serializer.validated_data.get("status") == "Approved":
+            course = Course.objects.get(slug=self.kwargs.get("slug"))
+            instructor_email = course.instructor.user.email
+
+            send_course_approved_email.delay(course.title, instructor_email)
+
+        return super().perform_update(serializer)
 
 
 class AdminCreateReviewers(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
     serializer_class = CreateUserSerializer
-    queryset = User.objects.filter(is_staff=True)
+    queryset = User.objects.filter(is_staff=True, is_superuser=False)
     lookup_field = "username"
 
     def perform_create(self, serializer):
         obj = serializer.save(is_staff=True)
         obj.set_password(serializer.validated_data.get("password"))
+        obj.save()

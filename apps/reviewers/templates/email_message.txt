@@ -1,0 +1,9 @@
+You're receiving this email because after going through some background check, your course {{ course_name|safe }} has been approved!!.
+
+Congratulations you are now an instructor on our platform.
+
+Please go to the home page to see your courset= listed:
+
+Thanks for using our site!
+
+The localhost:8000 team
