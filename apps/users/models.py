@@ -75,6 +75,15 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    class Type(models.TextChoices):
+        STUDENT = "STUDENT", "Student"
+        INSTRUCTOR = "INSTRUCTOR", "Instructor"
+        REVIEWER = "REVIEWER", "Reviewer"
+
+    base_type = Type.STUDENT
+
+    type = models.CharField(_("Type"), max_length=50, choices=Type.choices, default=Type.STUDENT)
+
     pkid = models.BigAutoField(primary_key=True, editable=False)
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     username = models.CharField(verbose_name=_("Username"), max_length=255, unique=True)
@@ -109,6 +118,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.username
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.type = self.base_type
+            return super().save(*args, **kwargs)
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -118,3 +132,48 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 post_save.connect(create_user_profile, sender=User)
+
+
+class StudentManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=User.Type.STUDENT)
+
+
+class Student(User):
+    base_type = User.Type.STUDENT
+
+    objects = StudentManager()
+
+    class Meta:
+        proxy = True
+
+
+class CourseInstructorManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=User.Type.INSTRUCTOR)
+
+
+class CourseInstructor(User):
+    base_type = User.Type.INSTRUCTOR
+
+    objects = CourseInstructorManager()
+
+    class Meta:
+        proxy = True
+
+
+class ReviewerManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=User.Type.REVIEWER)
+
+
+class Reviewer(User):
+    base_type = User.Type.REVIEWER
+
+    objects = ReviewerManager()
+
+    class Meta:
+        proxy = True
+
+
+# Student.objects.create(username="s", first_name="s", email="s@s.com", last_name="s", password="testing321")

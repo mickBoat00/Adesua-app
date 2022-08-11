@@ -1,8 +1,42 @@
+from django.contrib.auth.hashers import make_password
 from django.db.models import Avg
 from rest_framework import serializers
 
 from apps.course.models import Course, Lesson
 from apps.profiles.models import Profile
+from apps.users.models import Reviewer
+from apps.users.serializers import UserSerializer
+
+
+class CreateReviewerSerializer(UserSerializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    password = serializers.CharField(
+        max_length=255,
+        style={
+            "input-type": "password",
+        },
+    )
+
+    class Meta(UserSerializer.Meta):
+        model = Reviewer
+        fields = ["username", "email", "first_name", "last_name", "password"]
+
+    def create(self, validated_data):
+        username = validated_data.get("username")
+        first_name = validated_data.get("first_name")
+        last_name = validated_data.get("last_name")
+        email = validated_data.get("email")
+        password = make_password(validated_data.get("password"))
+
+        return Reviewer.objects.create(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=password,
+            is_staff=True,
+        )
 
 
 class InstructorSerializer(serializers.ModelSerializer):

@@ -9,7 +9,7 @@ from .views import (
 
 router = DefaultRouter()
 
-router.register(r"reviewers", AdminCreateReviewers, basename="reviewers")
+router.register(r"add-reviewers", AdminCreateReviewers, basename="reviewers")
 
 
 urlpatterns = [
