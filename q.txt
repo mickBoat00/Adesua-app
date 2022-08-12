@@ -1,0 +1,10 @@
+from apps.course.models import Course
+from apps.users.models import User
+from apps.students.models import CourseEnrollment
+
+
+c = Course.objects.get(pk=5)
+
+u = User.objects.get(pk=19)
+
+CourseEnrollment.objects.create(course=c, student=u, price=10)

@@ -5,6 +5,8 @@ from apps.course.models import Course
 from apps.profiles.models import Profile
 from apps.users.models import Student
 
+from .validators import validate_user_type
+
 
 class Rating(models.Model):
     class Range(models.IntegerChoices):
@@ -19,6 +21,7 @@ class Rating(models.Model):
         verbose_name=_("Enrolled Student providing the rating"),
         related_name="course_ratings",
         on_delete=models.SET_NULL,
+        validators=[validate_user_type],
         null=True,
     )
     course = models.ForeignKey(

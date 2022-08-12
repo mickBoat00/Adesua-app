@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from apps.profiles.models import Profile
 from apps.users.models import CourseInstructor
 
+from .validators import validate_user_type
+
 
 class TimeStampModel(models.Model):
     created_on = models.DateTimeField(auto_now=True)
@@ -56,8 +58,7 @@ class Course(TimeStampModel):
     instructor = models.ForeignKey(
         CourseInstructor,
         verbose_name=_("Course Instructor"),
-        null=True,
-        blank=True,
+        validators=[validate_user_type],
         related_name="instructor",
         on_delete=models.CASCADE,
     )
