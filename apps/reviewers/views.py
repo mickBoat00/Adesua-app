@@ -23,8 +23,6 @@ class ReviewerPerm(permissions.BasePermission):
     message = "You are not allowed because you're not a reviewer."
 
     def has_permission(self, request, view):
-        print("request.user.type", request.user.type)
-
         if request.user.type == "REVIEWER":
             return True
 
@@ -39,7 +37,7 @@ class PendingCoursePagination(PageNumberPagination):
 
 
 class PendingCourseListAPIView(generics.ListAPIView):
-    permission_classes = [ReviewerPerm]
+    permission_classes = [permissions.IsAuthenticated, ReviewerPerm]
     serializer_class = PendingCourseListSerializer
     pagination_class = PendingCoursePagination
 
@@ -48,10 +46,10 @@ class PendingCourseListAPIView(generics.ListAPIView):
 
 
 class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [ReviewerPerm]
+    permission_classes = [permissions.IsAuthenticated, ReviewerPerm]
     serializer_class = PendingCourseListSerializer
-    lookup_field = "slug"
     pagination_class = PendingCoursePagination
+    lookup_field = "slug"
 
     def get_queryset(self):
         return Course.objects.filter(status="Pending")
@@ -61,7 +59,7 @@ class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
         if serializer.validated_data.get("status") == "Approved":
             course = Course.objects.get(slug=self.kwargs.get("slug"))
             course_title = course.title
-            instructor_email = course.instructor.user.email
+            instructor_email = course.instructor.email
 
             send_course_email.delay(course_title, instructor_email)
 

@@ -4,14 +4,26 @@ from rest_framework import filters, generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
+from ..users.models import CourseInstructor
 from .models import Course, Curriculum, Lesson
-from .permissions import CourseInstrutorPerm, LessonsDetailPerm, SingleLessonPerm
+from .permissions import (
+    CourseInstructorPerm,
+    CourseInstrutorPerm,
+    LessonsDetailPerm,
+    SingleLessonPerm,
+)
 from .serializers import (
     CourseCreateSerializer,
     CourseDetailSerializer,
     CourseListSerializer,
+    CreateCourseInstructorSerializer,
     LessonSerializer,
 )
+
+
+class CourseInstructorSignUp(generics.CreateAPIView):
+    queryset = CourseInstructor.objects.all()
+    serializer_class = CreateCourseInstructorSerializer
 
 
 class CourseFilter(django_filters.FilterSet):
@@ -43,12 +55,12 @@ class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CourseCreateAPIView(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CourseInstructorPerm]
     queryset = Course.objects.all()
     serializer_class = CourseCreateSerializer
 
     def perform_create(self, serializer):
-        serializer.save(instructor=self.request.user.profile)
+        serializer.save(instructor=self.request.user)
 
 
 class CourseLessonsAPIView(generics.ListCreateAPIView):

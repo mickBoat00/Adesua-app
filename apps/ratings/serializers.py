@@ -10,13 +10,15 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = [
+            "id",
             "course",
+            "rater",
             "rating",
             "comment",
         ]
 
     def get_rater(self, obj):
-        return obj.rater.user.username
+        return obj.rater.username
 
     def get_agent(self, obj):
         return obj.title

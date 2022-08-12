@@ -107,7 +107,7 @@ class PendingCourseListSerializer(serializers.ModelSerializer):
         ]
 
     def get_instructor(self, obj):
-        return obj.instructor.user.get_full_name
+        return obj.instructor.username
 
     def get_rating(self, obj):
         return obj.ratings.all().aggregate(Avg("rating"))

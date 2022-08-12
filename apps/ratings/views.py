@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
@@ -20,6 +20,14 @@ class CreateRatingsPerm(permissions.BasePermission):
             return True
 
 
+# class CourseRating(viewsets.ModelViewSet):
+#     queryset = Rating.objects.all()
+#     serializer_class = RatingSerializer
+
+
+# class Course
+
+
 class CourseRating(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Rating.objects.all()
@@ -27,13 +35,13 @@ class CourseRating(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
 
-        rater = request.user.profile
+        rater = request.user
         course = Course.objects.get(id=request.data.get("course"))
 
         if rater == course.instructor:
             return Response({"fail": "sorry you cannot rate your own course"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        elif course.students.filter(profile=rater).exists():
+        elif course.enrollments.filter(student=rater).exists():
 
             serializer = self.get_serializer(data=request.data)
 
@@ -43,4 +51,7 @@ class CourseRating(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
         else:
-            return Response({"fail": "sorry you cannot rate this course"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "you are not a student of this course hence you can't rate the course"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )

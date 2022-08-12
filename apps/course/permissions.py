@@ -3,6 +3,19 @@ from rest_framework import permissions
 from .models import Course
 
 
+class CourseInstructorPerm(permissions.BasePermission):
+    message = "You are not a course instructor."
+
+    """
+        Check particular course
+    """
+
+    def has_permission(self, request, view):
+
+        if request.user.type == "INSTRUCTOR":
+            return True
+
+
 class CreateLessonPerm(permissions.BasePermission):
     message = "You are not a course instructor."
 
@@ -12,8 +25,25 @@ class CreateLessonPerm(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        if Course.objects.filter(instructor=request.user.profile).exists():
+        if Course.objects.filter(instructor=request.user).exists():
             return True
+
+
+# class CourseInstrutorPerm(permissions.BasePermission):
+
+#     message = "Only Course instructor is allowed to perform this action."
+
+#     def has_object_permission(self, request, view, obj):
+
+#         if not request.user.is_authenticated:
+#             if request.method in permissions.SAFE_METHODS:
+#                 return True
+#             return False
+
+#         if request.method in permissions.SAFE_METHODS:
+#             return True
+
+#         return obj.instructor == request.user
 
 
 class CourseInstrutorPerm(permissions.BasePermission):
@@ -30,7 +60,7 @@ class CourseInstrutorPerm(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.instructor == request.user.profile
+        return obj.instructor == request.user
 
 
 class LessonsDetailPerm(permissions.BasePermission):
@@ -43,15 +73,15 @@ class LessonsDetailPerm(permissions.BasePermission):
 
         if request.method in permissions.SAFE_METHODS:
 
-            if course.instructor == request.user.profile:
+            if course.instructor == request.user:
                 return True
 
-            elif course.students.filter(profile=request.user.profile).exists():
+            elif course.enrollments.filter(student=request.user).exists():
                 return True
 
             return False
 
-        return course.instructor == request.user.profile
+        return course.instructor == request.user
 
 
 class SingleLessonPerm(permissions.BasePermission):
@@ -60,11 +90,11 @@ class SingleLessonPerm(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
 
         if request.method in permissions.SAFE_METHODS:
-            if obj.course.students.filter(profile=request.user.profile).exists():
+            if obj.course.enrollments.filter(student=request.user).exists():
                 return True
-            elif obj.course.instructor == request.user.profile:
+            elif obj.course.instructor == request.user:
                 return True
 
             return False
 
-        return obj.course.instructor == request.user.profile
+        return obj.course.instructor == request.user

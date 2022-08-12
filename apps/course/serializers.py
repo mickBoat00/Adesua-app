@@ -1,5 +1,9 @@
+from django.contrib.auth.hashers import make_password
 from django.db.models import Avg
 from rest_framework import serializers
+
+from apps.users.models import CourseInstructor
+from apps.users.serializers import UserSerializer
 
 from .models import Course, Lesson
 
@@ -29,7 +33,7 @@ class CourseListSerializer(serializers.ModelSerializer):
         read_only_fields = ["slug", "rating", "raters"]
 
     def get_instructor(self, obj):
-        return obj.instructor.user.get_full_name
+        return obj.instructor.get_full_name
 
     def get_rating(self, obj):
         total_ratings = 0
@@ -52,18 +56,18 @@ class InstructorCourseInlineSerializer(serializers.Serializer):
     title = serializers.CharField(read_only=True)
 
 
-class InstructorProfileSerializer(serializers.Serializer):
-    user = serializers.CharField()
-    about_me = serializers.CharField()
-    other_course = serializers.SerializerMethodField(read_only=True)
+# class InstructorProfileSerializer(serializers.Serializer):
+#     user = serializers.CharField()
+#     about_me = serializers.CharField()
+#     other_course = serializers.SerializerMethodField(read_only=True)
 
-    def get_other_course(self, obj):
-        instructor_courses = obj.instructor.all()[:4]
-        return InstructorCourseInlineSerializer(instructor_courses, many=True).data
+#     def get_other_course(self, obj):
+#         instructor_courses = obj.instructor.all()[:4]
+#         return InstructorCourseInlineSerializer(instructor_courses, many=True).data
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
-    instructor = InstructorProfileSerializer()
+    # instructor = InstructorProfileSerializer()
     curriculum = serializers.StringRelatedField(many=False)
     year = serializers.StringRelatedField(many=False)
     lessons = serializers.StringRelatedField(many=True)
@@ -88,7 +92,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "lessons",
             "pay",
             "published_status",
-            "instructor",
+            # "instructor",
         ]
         read_only_fields = ["slug", "rating", "raters", "status", "students"]
 
@@ -147,4 +151,29 @@ class LessonSerializer(serializers.ModelSerializer):
             "video",
         ]
 
-        read_only = ["course"]
+        read_only = ["slug"]
+
+
+class CreateCourseInstructorSerializer(UserSerializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    password = serializers.CharField(
+        max_length=255,
+        style={
+            "input-type": "password",
+        },
+    )
+
+    class Meta(UserSerializer.Meta):
+        model = CourseInstructor
+        fields = ["first_name", "last_name", "username", "email", "password"]
+
+    def create(self, validated_data):
+
+        return CourseInstructor.objects.create(
+            username=validated_data.get("username"),
+            first_name=validated_data.get("first_name"),
+            last_name=validated_data.get("last_name"),
+            email=validated_data.get("email"),
+            password=make_password(validated_data.get("password")),
+        )

@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.profiles.models import Profile
+from apps.users.models import CourseInstructor
 
 
 class TimeStampModel(models.Model):
@@ -53,7 +54,7 @@ class Course(TimeStampModel):
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE, verbose_name=_("Course Syllables"))
     year = models.ForeignKey(Year, on_delete=models.CASCADE, verbose_name=_("Class Level"))
     instructor = models.ForeignKey(
-        Profile,
+        CourseInstructor,
         verbose_name=_("Course Instructor"),
         null=True,
         blank=True,
@@ -122,8 +123,6 @@ class Lesson(TimeStampModel):
     video = models.FileField(
         verbose_name=_("Lesson Video"),
         upload_to="lesson_videos",
-        null=True,
-        blank=True,
         validators=[FileExtensionValidator(allowed_extensions=["MOV", "avi", "mp4", "webm", "mkv"])],
     )
 
