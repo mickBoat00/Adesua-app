@@ -64,16 +64,6 @@ class CourseTests(APITestCase):
             status="Approved",
         )
 
-        # self.testuser2 = User.objects.create_user(
-        #     username="Test 2",
-        #     first_name="Test 2",
-        #     last_name="User two",
-        #     country="Ghana",
-        #     city="Accra",
-        #     email="test.user_two@gmail.com",
-        #     password="pass1234567",
-        # )
-
         self.client = APIClient()
 
     def test_view_courses(self):
@@ -186,48 +176,3 @@ class CourseTests(APITestCase):
         url = reverse("course-detail", kwargs={"slug": "mathematics"})
         response = self.client.patch(url, update_course, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_student_course_enrollment(self):
-
-        """
-        Test a situation where a student can access course lessons of courses he/she is enrolled
-        but prevent to access of courses he/she is not enrolled in.
-        """
-
-        self.client.login(email="student@gmail.com", password="pass1234567")
-
-        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
-        response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        data = {"course": self.test_course.id, "price": 10.99}
-
-        url = reverse("student:course-enrollment")
-        response = self.client.post(url, data, format="json")
-
-        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
-        response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_student_rate_course(self):
-
-        """
-        Test enrolled students of a course should be able to able to rate that course
-        Students not enrolled in the course should not be able to rate the course.
-        """
-
-        self.client.login(email="student@gmail.com", password="pass1234567")
-
-        data = {"course": self.test_course.id, "rating": 4, "comment": "This is an amazing course."}
-
-        rating_url = reverse("ratings:rate-course")
-        response = self.client.post(rating_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        data = {"course": self.test_course.id, "price": 10.99}
-
-        enrollment_url = reverse("student:course-enrollment")
-        response = self.client.post(enrollment_url, data, format="json")
-
-        response = self.client.post(rating_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
