@@ -7,7 +7,8 @@ class CourseInstructorPerm(permissions.BasePermission):
     message = "You are not a course instructor."
 
     """
-        Check particular course
+        Check if the request.user's type is INSTRUCTOR
+        If not they cannot create course and lessons for that particular course.
     """
 
     def has_permission(self, request, view):
@@ -51,6 +52,9 @@ class CourseInstrutorPerm(permissions.BasePermission):
     message = "Only Course instructor is allowed to perform this action."
 
     def has_object_permission(self, request, view, obj):
+
+        if obj.status == "Pending" and request.user != obj.instructor:
+            return False
 
         if not request.user.is_authenticated:
             if request.method in permissions.SAFE_METHODS:

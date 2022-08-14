@@ -154,26 +154,26 @@ class LessonSerializer(serializers.ModelSerializer):
         read_only = ["slug"]
 
 
-class CreateCourseInstructorSerializer(UserSerializer):
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    password = serializers.CharField(
-        max_length=255,
-        style={
-            "input-type": "password",
-        },
-    )
+# class CreateCourseInstructorSerializer(UserSerializer):
+#     first_name = serializers.CharField()
+#     last_name = serializers.CharField()
+#     password = serializers.CharField(
+#         max_length=255,
+#         style={
+#             "input-type": "password",
+#         },
+#     )
 
-    class Meta(UserSerializer.Meta):
-        model = CourseInstructor
-        fields = ["first_name", "last_name", "username", "email", "password"]
+#     class Meta(UserSerializer.Meta):
+#         model = CourseInstructor
+#         fields = ["first_name", "last_name", "username", "email", "password"]
 
-    def create(self, validated_data):
+#     def create(self, validated_data):
 
-        return CourseInstructor.objects.create(
-            username=validated_data.get("username"),
-            first_name=validated_data.get("first_name"),
-            last_name=validated_data.get("last_name"),
-            email=validated_data.get("email"),
-            password=make_password(validated_data.get("password")),
-        )
+#         return CourseInstructor.objects.create(
+#             username=validated_data.get("username"),
+#             first_name=validated_data.get("first_name"),
+#             last_name=validated_data.get("last_name"),
+#             email=validated_data.get("email"),
+#             password=make_password(validated_data.get("password")),
+#         )

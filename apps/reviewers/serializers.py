@@ -11,6 +11,7 @@ from apps.users.serializers import UserSerializer
 class CreateReviewerSerializer(UserSerializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+    type = serializers.CharField()
     password = serializers.CharField(
         max_length=255,
         style={
@@ -20,12 +21,13 @@ class CreateReviewerSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
         model = Reviewer
-        fields = ["username", "email", "first_name", "last_name", "password"]
+        fields = ["username", "email", "first_name", "last_name", "type", "password"]
 
     def create(self, validated_data):
         username = validated_data.get("username")
         first_name = validated_data.get("first_name")
         last_name = validated_data.get("last_name")
+        type = validated_data.get("type")
         email = validated_data.get("email")
         password = make_password(validated_data.get("password"))
 
@@ -36,6 +38,7 @@ class CreateReviewerSerializer(UserSerializer):
             email=email,
             password=password,
             is_staff=True,
+            type=type,
         )
 
 

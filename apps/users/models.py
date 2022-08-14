@@ -29,6 +29,9 @@ class CustomUserManager(BaseUserManager):
         if not last_name:
             raise ValueError(_("Users must submit a last name"))
 
+        if not type:
+            raise ValueError(_("A type of user must be defined"))
+
         if email:
             email = self.normalize_email(email)
             self.email_validator(email)
@@ -79,10 +82,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         STUDENT = "STUDENT", "Student"
         INSTRUCTOR = "INSTRUCTOR", "Instructor"
         REVIEWER = "REVIEWER", "Reviewer"
+        ADMIN = "ADMIN", "Admin"
 
-    base_type = Type.STUDENT
-
-    type = models.CharField(_("Type"), max_length=50, choices=Type.choices, default=Type.STUDENT)
+    type = models.CharField(_("Type"), max_length=50, choices=Type.choices, default=Type.ADMIN)
 
     pkid = models.BigAutoField(primary_key=True, editable=False)
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -100,6 +102,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         "username",
         "first_name",
         "last_name",
+        "type",
     ]
 
     objects = CustomUserManager()
@@ -117,11 +120,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.username
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.type = self.base_type
-            return super().save(*args, **kwargs)
 
 
 def create_user_profile(sender, instance, created, **kwargs):
@@ -174,6 +172,3 @@ class Reviewer(User):
 
     class Meta:
         proxy = True
-
-
-# Student.objects.create(username="s", first_name="s", email="s@s.com", last_name="s", password="testing321")

@@ -1,35 +1,14 @@
-from django.conf import settings
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from rest_framework import generics, permissions, status, viewsets
+from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.pagination import PageNumberPagination
 
-from apps.course.models import Course, Curriculum, Lesson
-from apps.course.tasks import add
-from apps.reviewers.serializers import CreateReviewerSerializer
+from apps.course.models import Course
 from apps.reviewers.tasks import send_course_email
 from apps.users.models import Reviewer
+from apps.users.serializers import CreateUserSerializer
 
-from .serializers import PendingCourseListSerializer
-
-# Admin will create reviewers
-# Reviewers will change their password
-# Reviewers will update the course status after doing some background checks on the course instructor
-# Course instructor will be notified about the current status of the course
-
-
-class ReviewerPerm(permissions.BasePermission):
-    message = "You are not allowed because you're not a reviewer."
-
-    def has_permission(self, request, view):
-        if request.user.type == "REVIEWER":
-            return True
-
-    def has_object_permission(self, request, view, obj):
-
-        if request.user.type == "REVIEWER":
-            return True
+from .permissions import ReviewerPerm
+from .serializers import CreateReviewerSerializer, PendingCourseListSerializer
 
 
 class PendingCoursePagination(PageNumberPagination):

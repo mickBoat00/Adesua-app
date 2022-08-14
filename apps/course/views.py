@@ -12,18 +12,16 @@ from .permissions import (
     LessonsDetailPerm,
     SingleLessonPerm,
 )
-from .serializers import (
+from .serializers import (  # CreateCourseInstructorSerializer,
     CourseCreateSerializer,
     CourseDetailSerializer,
     CourseListSerializer,
-    CreateCourseInstructorSerializer,
     LessonSerializer,
 )
 
-
-class CourseInstructorSignUp(generics.CreateAPIView):
-    queryset = CourseInstructor.objects.all()
-    serializer_class = CreateCourseInstructorSerializer
+# class CourseInstructorSignUp(generics.CreateAPIView):
+#     queryset = CourseInstructor.objects.all()
+#     serializer_class = CreateCourseInstructorSerializer
 
 
 class CourseFilter(django_filters.FilterSet):
