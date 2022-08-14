@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "apps.course",
     "apps.users",
     "apps.profiles",
-    "apps.orders",
     "apps.ratings",
     "apps.search",
     "apps.reviewers",

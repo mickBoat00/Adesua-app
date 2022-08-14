@@ -9,7 +9,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("apps.course.urls")),
     path("api/profile/", include("apps.profiles.urls")),
-    path("api/orders/", include("apps.orders.urls")),
     path("api/ratings/", include("apps.ratings.urls", namespace="ratings")),
     path("api/search/", include("apps.search.urls")),
     path("api/reviewers/", include("apps.reviewers.urls")),
