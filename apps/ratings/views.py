@@ -11,9 +11,6 @@ from .serializers import RatingSerializer
 class CreateRatingsPerm(permissions.BasePermission):
     def has_permission(self, request, view):
 
-        print("request", request)
-        print("view", view.kwargs)
-
         course = Course.objects.get(id=17)
 
         if course.students.filter(profile=request.user.profile).exists():
@@ -55,5 +52,4 @@ class CourseRating(generics.CreateAPIView):
     #         )
 
     def perform_create(self, serializer):
-        print("serializer", serializer.validated_data)
         return serializer.save(rater=self.request.user)

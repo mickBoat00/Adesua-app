@@ -21,13 +21,30 @@ User = get_user_model()
 class CourseTests(APITestCase):
     def setUp(self):
 
-        self.testuser1 = User.objects.create_user(
-            username="Test",
-            first_name="Test",
-            last_name="User",
-            country="Ghana",
-            city="Accra",
-            email="test.user@gmail.com",
+        self.course_instructor = User.objects.create_user(
+            first_name="Course",
+            last_name="Instructor",
+            username="course_instructor",
+            type="INSTRUCTOR",
+            email="course.instructor@gmail.com",
+            password="pass1234567",
+        )
+
+        self.course_instructor2 = User.objects.create_user(
+            first_name="Course 2",
+            last_name="Instructor 2",
+            username="course_instructor2",
+            type="INSTRUCTOR",
+            email="course.instructor_2@gmail.com",
+            password="pass1234567",
+        )
+
+        self.student = User.objects.create_user(
+            first_name="Student",
+            last_name="School",
+            username="student_school",
+            type="STUDENT",
+            email="student@gmail.com",
             password="pass1234567",
         )
 
@@ -38,29 +55,30 @@ class CourseTests(APITestCase):
         self.test_course = Course.objects.create(
             curriculum=self.test_curriculum,
             year=self.test_year,
-            instructor=self.testuser1.profile,
+            instructor=self.course_instructor,
             title="Mathematics",
             description="This is a GCSE mathematice course for GCSE students.",
             price="10.99",
             pay="Free",
             published_status=True,
+            status="Approved",
         )
 
-        self.testuser2 = User.objects.create_user(
-            username="Test 2",
-            first_name="Test 2",
-            last_name="User two",
-            country="Ghana",
-            city="Accra",
-            email="test.user_two@gmail.com",
-            password="pass1234567",
-        )
+        # self.testuser2 = User.objects.create_user(
+        #     username="Test 2",
+        #     first_name="Test 2",
+        #     last_name="User two",
+        #     country="Ghana",
+        #     city="Accra",
+        #     email="test.user_two@gmail.com",
+        #     password="pass1234567",
+        # )
 
         self.client = APIClient()
 
     def test_view_courses(self):
         """
-        Test to view all courses created.
+        Test all users can view courses list
         """
 
         url = reverse("course-list")
@@ -70,7 +88,7 @@ class CourseTests(APITestCase):
     def test_view_a_course(self):
 
         """
-        Test view a particular course created.
+        Test all users view a particular course's detail.
         """
 
         url = reverse("course-detail", kwargs={"slug": "mathematics"})
@@ -80,7 +98,9 @@ class CourseTests(APITestCase):
     def test_create_courses(self):
 
         """
-        An authenticated user should be able to create a course
+        Test if an unauthenticated user can create course
+        Test if students can create course
+        Test if only course instructors can create course
         """
 
         data = {
@@ -98,7 +118,15 @@ class CourseTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.client.login(email="test.user@gmail.com", password="pass1234567")
+        self.client.login(email="student@gmail.com", password="pass1234567")
+
+        url = reverse("course-create")
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.logout()
+        self.client.login(email="course.instructor@gmail.com", password="pass1234567")
 
         url = reverse("course-create")
         response = self.client.post(url, data, format="json")
@@ -108,15 +136,18 @@ class CourseTests(APITestCase):
     def test_create_course_lesson(self):
 
         """
-        Test a situation where user1 create a course and user2 is trying to create a lesson for that course
-        Expected result is user2 should be Forbidden from creating a lesson for a course he didn't create
+        Test a situation where a course instructor creates a course and a different course instructor is trying
+        to create a lesson for that course
         """
 
-        self.client.logout()
+        self.client.login(email="course.instructor_2@gmail.com", password="pass1234567")
 
-        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
-
-        lesson_data = {"title": "Lesson One", "slug": "lesson-one", "description": "Love this course"}
+        lesson_data = {
+            "title": "Lesson One",
+            "slug": "lesson-one",
+            "description": "Love this course",
+            "video": "http://localhost:8000/media/lesson_videos/videoplayback_1.mp4",
+        }
 
         url = reverse("course-lesson", kwargs={"slug": "mathematics"})
         response = self.client.post(url, lesson_data, format="json")
@@ -125,12 +156,10 @@ class CourseTests(APITestCase):
     def test_student_course_lessons_access(self):
 
         """
-        Test a situation where a user can't access a lessons of course, he is not enrolled in.
+        Test a situation where a student can't access a lessons of course, he/she is not enrolled in.
         """
 
-        self.client.logout()
-
-        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
+        self.client.login(email="student@gmail.com", password="pass1234567")
 
         url = reverse("course-lesson", kwargs={"slug": "mathematics"})
         response = self.client.get(url, format="json")
@@ -139,11 +168,11 @@ class CourseTests(APITestCase):
     def test_update_course(self):
 
         """
-        Test a situation where user1 create a course and user2 is trying to update that course
-        Expected result is user2 should be Forbidden from updating course he didn't create
+        Test a situation where only the course instructor for a course can update details of that particular course
+        Everyone else should be prevented. Except a reviewer who can only update the status of the course.
         """
 
-        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
+        self.client.login(email="course.instructor_2@gmail.com", password="pass1234567")
 
         update_course = {"price": "9.99", "pay": "Paid", "published_status": "True"}
 
@@ -153,7 +182,7 @@ class CourseTests(APITestCase):
 
         self.client.logout()
 
-        self.client.login(email="test.user@gmail.com", password="pass1234567")
+        self.client.login(email="course.instructor@gmail.com", password="pass1234567")
         url = reverse("course-detail", kwargs={"slug": "mathematics"})
         response = self.client.patch(url, update_course, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -161,14 +190,19 @@ class CourseTests(APITestCase):
     def test_student_course_enrollment(self):
 
         """
-        Test a situation where a user access lessons of course, he is enrolled in.
+        Test a situation where a student can access course lessons of courses he/she is enrolled
+        but prevent to access of courses he/she is not enrolled in.
         """
 
-        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
+        self.client.login(email="student@gmail.com", password="pass1234567")
+
+        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         data = {"course": self.test_course.id, "price": 10.99}
 
-        url = reverse("pay-course")
+        url = reverse("student:course-enrollment")
         response = self.client.post(url, data, format="json")
 
         url = reverse("course-lesson", kwargs={"slug": "mathematics"})
@@ -179,20 +213,21 @@ class CourseTests(APITestCase):
 
         """
         Test enrolled students of a course should be able to able to rate that course
-        Test enrolled student should be able to rate the course if not i love the fact that we coding
+        Students not enrolled in the course should not be able to rate the course.
         """
 
-        self.client.login(email="test.user_two@gmail.com", password="pass1234567")
-
-        data = {"course": self.test_course.id, "price": 10.99}
-
-        url = reverse("pay-course")
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.client.login(email="student@gmail.com", password="pass1234567")
 
         data = {"course": self.test_course.id, "rating": 4, "comment": "This is an amazing course."}
 
-        url = reverse("rate-course")
+        rating_url = reverse("ratings:rate-course")
+        response = self.client.post(rating_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.post(url, data, format="json")
-        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = {"course": self.test_course.id, "price": 10.99}
+
+        enrollment_url = reverse("student:course-enrollment")
+        response = self.client.post(enrollment_url, data, format="json")
+
+        response = self.client.post(rating_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
