@@ -107,8 +107,6 @@ class Command(BaseCommand):
                 first_name=first_name,
                 username=first_name,
                 last_name=last_name,
-                country="Ghana",
-                city="Accra",
                 email=email,
                 type=random.choice(USER_TYPES),
                 password="testing321",

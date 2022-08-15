@@ -11,7 +11,7 @@ from .validators import validate_user_type
 
 
 class CourseEnrollment(models.Model):
-    course = models.ForeignKey(Course, related_name="enrollments", null=True, blank=True, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, related_name="enrollments", on_delete=models.CASCADE)
     student = models.ForeignKey(
         Student,
         related_name="courses_enrolled",

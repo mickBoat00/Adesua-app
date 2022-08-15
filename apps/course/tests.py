@@ -1,10 +1,9 @@
-from apps.course.models import Course, Curriculum, Lesson, Student, Year
-from apps.profiles.models import Profile
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+
+from apps.course.models import Course, Curriculum, Year
 
 User = get_user_model()
 
@@ -108,7 +107,7 @@ class CourseTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.client.login(email="student@gmail.com", password="pass1234567")
+        self.client.login(email=self.student.email, password="pass1234567")
 
         url = reverse("course-create")
         response = self.client.post(url, data, format="json")
@@ -116,7 +115,7 @@ class CourseTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.client.logout()
-        self.client.login(email="course.instructor@gmail.com", password="pass1234567")
+        self.client.login(email=self.course_instructor.email, password="pass1234567")
 
         url = reverse("course-create")
         response = self.client.post(url, data, format="json")
@@ -130,7 +129,7 @@ class CourseTests(APITestCase):
         to create a lesson for that course
         """
 
-        self.client.login(email="course.instructor_2@gmail.com", password="pass1234567")
+        self.client.login(email=self.course_instructor2.email, password="pass1234567")
 
         lesson_data = {
             "title": "Lesson One",
@@ -149,7 +148,7 @@ class CourseTests(APITestCase):
         Test a situation where a student can't access a lessons of course, he/she is not enrolled in.
         """
 
-        self.client.login(email="student@gmail.com", password="pass1234567")
+        self.client.login(email=self.student.email, password="pass1234567")
 
         url = reverse("course-lesson", kwargs={"slug": "mathematics"})
         response = self.client.get(url, format="json")
@@ -162,7 +161,7 @@ class CourseTests(APITestCase):
         Everyone else should be prevented. Except a reviewer who can only update the status of the course.
         """
 
-        self.client.login(email="course.instructor_2@gmail.com", password="pass1234567")
+        self.client.login(email=self.course_instructor2.email, password="pass1234567")
 
         update_course = {"price": "9.99", "pay": "Paid", "published_status": "True"}
 
@@ -172,7 +171,7 @@ class CourseTests(APITestCase):
 
         self.client.logout()
 
-        self.client.login(email="course.instructor@gmail.com", password="pass1234567")
+        self.client.login(email=self.course_instructor.email, password="pass1234567")
         url = reverse("course-detail", kwargs={"slug": "mathematics"})
         response = self.client.patch(url, update_course, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
