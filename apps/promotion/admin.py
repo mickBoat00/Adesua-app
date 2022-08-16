@@ -17,11 +17,11 @@ class PromotionAdmin(admin.ModelAdmin):
     list_display = ["name", "is_active", "promo_start", "promo_end"]
     inlines = (CoursesOnPromotionAdmin,)
 
-    def save_model(self, request, obj, form, change):
-        print("running aint")
-        super().save_model(request, obj, form, change)
-        promotion_prices.delay(obj.promo_reduction, obj.id)
-        # promotion_management.delay()
+    # def save_model(self, request, obj, form, change):
+    #     print("running aint")
+    #     super().save_model(request, obj, form, change)
+    #     promotion_prices.delay(obj.promo_reduction, obj.id)
+    # promotion_management.delay()
 
 
 admin.site.register(Promotion, PromotionAdmin)

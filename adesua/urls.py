@@ -13,6 +13,7 @@ urlpatterns = [
     path("api/search/", include("apps.search.urls")),
     path("api/reviewers/", include("apps.reviewers.urls")),
     path("api/students/", include("apps.students.urls", namespace="student")),
+    path("api/promotion/", include("apps.promotion.urls", namespace="promotion")),
     path("api/auth/", include("djoser.urls")),
     path("api/auth/", include("djoser.urls.jwt")),
     path("docs/", include_docs_urls(title="AdesuaAPI")),
