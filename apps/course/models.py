@@ -71,7 +71,7 @@ class Course(TimeStampModel):
         max_digits=8,
         decimal_places=2,
         default=0.0,
-        validators=[MinValueValidator(Decimal("0.0"))],
+        validators=[MinValueValidator(Decimal("0.00"))],
     )
 
     pay = models.CharField(

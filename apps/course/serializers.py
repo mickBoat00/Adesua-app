@@ -14,6 +14,7 @@ class CourseListSerializer(serializers.ModelSerializer):
     instructor = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
+    promotion_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -29,8 +30,16 @@ class CourseListSerializer(serializers.ModelSerializer):
             "rating",
             "raters",
             "pay",
+            "promotion_price",
         ]
         read_only_fields = ["slug", "rating", "raters"]
+
+    def get_promotion_price(self, obj):
+        x = obj.CoursesOnPromotion.first()
+        y = obj.courses_on_promotion.first()
+
+        if x and y.is_active:
+            return x.promo_price
 
     def get_instructor(self, obj):
         return obj.instructor.get_full_name
