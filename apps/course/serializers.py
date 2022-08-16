@@ -1,5 +1,11 @@
-from django.db.models import Avg
+from django.contrib.auth.hashers import make_password
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Avg, Q, Sum
 from rest_framework import serializers
+
+from apps.promotion.models import Promotion
+from apps.users.models import CourseInstructor
+from apps.users.serializers import UserSerializer
 
 from .models import Course, Lesson
 
@@ -10,6 +16,7 @@ class CourseListSerializer(serializers.ModelSerializer):
     instructor = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
+    promotion_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -21,15 +28,44 @@ class CourseListSerializer(serializers.ModelSerializer):
             "title",
             "slug",
             "cover_image",
-            "price",
             "rating",
             "raters",
             "pay",
+            "price",
+            "promotion_price",
         ]
         read_only_fields = ["slug", "rating", "raters"]
 
+    def get_promotion_price(self, obj):
+        # x = obj.CoursesOnPromotion.first()
+        # y = obj.courses_on_promotion.first()
+
+        # if x and y.is_active:
+        #     return x.promo_price
+
+        try:
+            x = Promotion.courses_on_promotion.through.objects.filter(
+                Q(promotion_id__is_active=True) & Q(course_id=obj.id)
+            )
+
+            print("x", x)
+            for a in x:
+                print("a.promo_price", a.promo_price)
+                print("00000000000000000000000000000000000")
+            # x = Promotion.courses_on_promotion.through.objects.filter(
+            #     Q(promotion_id__is_active=True) & Q(course_id=obj.id)
+            # ).aggregate(Sum("promo_price"))
+
+            # print(x)
+
+            # return x.get("promo_price__sum")
+            return 10
+
+        except ObjectDoesNotExist:
+            return None
+
     def get_instructor(self, obj):
-        return obj.instructor.user.get_full_name
+        return obj.instructor.get_full_name
 
     def get_rating(self, obj):
         total_ratings = 0
@@ -52,18 +88,18 @@ class InstructorCourseInlineSerializer(serializers.Serializer):
     title = serializers.CharField(read_only=True)
 
 
-class InstructorProfileSerializer(serializers.Serializer):
-    user = serializers.CharField()
-    about_me = serializers.CharField()
-    other_course = serializers.SerializerMethodField(read_only=True)
+# class InstructorProfileSerializer(serializers.Serializer):
+#     user = serializers.CharField()
+#     about_me = serializers.CharField()
+#     other_course = serializers.SerializerMethodField(read_only=True)
 
-    def get_other_course(self, obj):
-        instructor_courses = obj.instructor.all()[:4]
-        return InstructorCourseInlineSerializer(instructor_courses, many=True).data
+#     def get_other_course(self, obj):
+#         instructor_courses = obj.instructor.all()[:4]
+#         return InstructorCourseInlineSerializer(instructor_courses, many=True).data
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
-    instructor = InstructorProfileSerializer()
+    # instructor = InstructorProfileSerializer()
     curriculum = serializers.StringRelatedField(many=False)
     year = serializers.StringRelatedField(many=False)
     lessons = serializers.StringRelatedField(many=True)
@@ -88,7 +124,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "lessons",
             "pay",
             "published_status",
-            "instructor",
+            # "instructor",
         ]
         read_only_fields = ["slug", "rating", "raters", "status", "students"]
 
@@ -147,4 +183,29 @@ class LessonSerializer(serializers.ModelSerializer):
             "video",
         ]
 
-        read_only = ["course"]
+        read_only = ["slug"]
+
+
+# class CreateCourseInstructorSerializer(UserSerializer):
+#     first_name = serializers.CharField()
+#     last_name = serializers.CharField()
+#     password = serializers.CharField(
+#         max_length=255,
+#         style={
+#             "input-type": "password",
+#         },
+#     )
+
+#     class Meta(UserSerializer.Meta):
+#         model = CourseInstructor
+#         fields = ["first_name", "last_name", "username", "email", "password"]
+
+#     def create(self, validated_data):
+
+#         return CourseInstructor.objects.create(
+#             username=validated_data.get("username"),
+#             first_name=validated_data.get("first_name"),
+#             last_name=validated_data.get("last_name"),
+#             email=validated_data.get("email"),
+#             password=make_password(validated_data.get("password")),
+#         )

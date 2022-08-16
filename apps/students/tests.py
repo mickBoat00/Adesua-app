@@ -17,7 +17,7 @@ User = get_user_model()
 """
 
 
-class ReviewersTest(APITestCase):
+class StudentTests(APITestCase):
     def setUp(self):
 
         self.course_instructor = User.objects.create_user(
@@ -47,15 +47,6 @@ class ReviewersTest(APITestCase):
             password="pass1234567",
         )
 
-        self.reviewer = User.objects.create_user(
-            first_name="Re",
-            last_name="Viewer",
-            username="re_viewer",
-            type="REVIEWER",
-            email="re_viewer@gmail.com",
-            password="pass1234567",
-        )
-
         self.test_curriculum = Curriculum.objects.create(name="GCSE")
 
         self.test_year = Year.objects.create(value=10)
@@ -69,27 +60,29 @@ class ReviewersTest(APITestCase):
             price="10.99",
             pay="Free",
             published_status=True,
+            status="Approved",
         )
 
         self.client = APIClient()
 
-    def test_reviewers_update_pending_courses(self):
+    def test_student_course_enrollment(self):
 
         """
-        Reviewers should get a list of pending courses and update their status to approved..
+        Test a situation where a student can access course lessons of courses he/she is enrolled
+        but prevent to access of courses he/she is not enrolled in.
         """
 
-        self.client.login(email=self.reviewer.email, password="pass1234567")
+        self.client.login(email=self.student.email, password="pass1234567")
 
-        # url = reverse("course-lesson", kwargs={"slug": "mathematics"})
-        # response = self.client.get(url, format="json")
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # data = {"course": self.test_course.id, "price": 10.99}
+        data = {"course": self.test_course.id, "price": 10.99}
 
-        # url = reverse("student:course-enrollment")
-        # response = self.client.post(url, data, format="json")
+        url = reverse("student:course-enrollment")
+        response = self.client.post(url, data, format="json")
 
-        # url = reverse("course-lesson", kwargs={"slug": "mathematics"})
-        # response = self.client.get(url, format="json")
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        url = reverse("course-lesson", kwargs={"slug": "mathematics"})
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

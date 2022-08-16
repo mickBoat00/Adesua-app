@@ -61,6 +61,7 @@ services:
 
   celery:
     container_name: celery
+    restart: always
     build: .
     volumes:
       - .:/django
@@ -73,3 +74,23 @@ services:
     depends_on:
       - backend
       - redis
+
+  celery-beat:
+    container_name: celery_beat
+    restart: always
+    build: .
+    volumes:
+      - .:/django
+    command: celery -A adesua beat -l info
+    depends_on:
+      - celery
+      - redis
+
+  flower:
+    container_name: flower_adesua
+    image: mher/flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - FLOWER_PORT=8888
+    ports:
+      - "8888:8888"

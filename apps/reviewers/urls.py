@@ -9,11 +9,12 @@ from .views import (
 
 router = DefaultRouter()
 
-router.register(r"reviewers", AdminCreateReviewers, basename="reviewers")
+router.register(r"add-reviewers", AdminCreateReviewers, basename="reviewers")
 
+app_name = "reviewer"
 
 urlpatterns = [
-    path("", PendingCourseListAPIView.as_view()),
+    path("", PendingCourseListAPIView.as_view(), name="pending-courses"),
     path("", include(router.urls)),
     path("<slug:slug>/", UpdatePendingCoureAPIView.as_view()),
 ]

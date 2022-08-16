@@ -51,12 +51,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super(UserSerializer, self).to_representation(instance)
-        if instance.is_superuser:
-            representation["admin"] = True
+        # if instance.is_superuser:
+        #     representation["admin"] = True
         return representation
 
 
 class CreateUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
-        fields = ["username", "email", "first_name", "last_name", "password"]
+        fields = ["username", "email", "first_name", "last_name", "type", "password"]

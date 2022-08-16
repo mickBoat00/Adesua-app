@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.profiles.models import Profile
 from apps.course.models import Course
-from adesua.settings import AUTH_USER_MODEL
+from apps.profiles.models import Profile
+from apps.users.models import Student
+
+from .validators import validate_user_type
 
 
 class Rating(models.Model):
@@ -15,9 +18,11 @@ class Rating(models.Model):
         RATING_5 = 5, _("Excellent")
 
     rater = models.ForeignKey(
-        Profile,
+        Student,
         verbose_name=_("Enrolled Student providing the rating"),
+        related_name="course_ratings",
         on_delete=models.SET_NULL,
+        validators=[validate_user_type],
         null=True,
     )
     course = models.ForeignKey(
@@ -39,4 +44,4 @@ class Rating(models.Model):
         unique_together = ["rater", "course"]
 
     def __str__(self):
-        return f"{self.course} rated at {self.rating}"
+        return f"{self.course} --- {self.rating} ratings"

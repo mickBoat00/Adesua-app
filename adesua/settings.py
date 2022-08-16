@@ -15,6 +15,8 @@ from pathlib import Path
 
 import environ
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -49,13 +51,15 @@ INSTALLED_APPS = [
     "django_elasticsearch_dsl",
     "djcelery_email",
     "django_filters",
+    # "django_celery_beat",
     "apps.course",
     "apps.users",
     "apps.profiles",
-    "apps.orders",
     "apps.ratings",
     "apps.search",
     "apps.reviewers",
+    "apps.students",
+    "apps.promotion",
 ]
 
 MIDDLEWARE = [
@@ -207,6 +211,11 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+
+CELERY_BEAT_SCHEDULE = {
+    "scheduled_task": {"task": "apps.promotion.tasks.promotion_management", "schedule": crontab(minute="*")}
+}
 
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
