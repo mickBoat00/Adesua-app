@@ -88,16 +88,6 @@ class InstructorCourseInlineSerializer(serializers.Serializer):
     title = serializers.CharField(read_only=True)
 
 
-# class InstructorProfileSerializer(serializers.Serializer):
-#     user = serializers.CharField()
-#     about_me = serializers.CharField()
-#     other_course = serializers.SerializerMethodField(read_only=True)
-
-#     def get_other_course(self, obj):
-#         instructor_courses = obj.instructor.all()[:4]
-#         return InstructorCourseInlineSerializer(instructor_courses, many=True).data
-
-
 class CourseDetailSerializer(serializers.ModelSerializer):
     # instructor = InstructorProfileSerializer()
     curriculum = serializers.StringRelatedField(many=False)
@@ -170,12 +160,9 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    # course = serializers.PrimaryKeyRelatedField(many=False, queryset=Course.objects.all())
-
     class Meta:
         model = Lesson
         fields = [
-            # "course",
             "id",
             "title",
             "slug",
@@ -184,28 +171,3 @@ class LessonSerializer(serializers.ModelSerializer):
         ]
 
         read_only = ["slug"]
-
-
-# class CreateCourseInstructorSerializer(UserSerializer):
-#     first_name = serializers.CharField()
-#     last_name = serializers.CharField()
-#     password = serializers.CharField(
-#         max_length=255,
-#         style={
-#             "input-type": "password",
-#         },
-#     )
-
-#     class Meta(UserSerializer.Meta):
-#         model = CourseInstructor
-#         fields = ["first_name", "last_name", "username", "email", "password"]
-
-#     def create(self, validated_data):
-
-#         return CourseInstructor.objects.create(
-#             username=validated_data.get("username"),
-#             first_name=validated_data.get("first_name"),
-#             last_name=validated_data.get("last_name"),
-#             email=validated_data.get("email"),
-#             password=make_password(validated_data.get("password")),
-#         )
