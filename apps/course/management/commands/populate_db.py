@@ -10,6 +10,7 @@ User = get_user_model()
 
 from apps.course.models import Course, Curriculum, Lesson, Year
 from apps.profiles.models import Profile
+from apps.users.models import CourseInstructor
 
 CURRICULUM_LIST = [
     "AICE",
@@ -67,6 +68,12 @@ LESSON_TITLE = [
     "Lesson Four",
 ]
 
+USER_TYPES = [
+    "INSTRUCTOR",
+    "STUDENT",
+    "REVIEWER",
+]
+
 
 class Provider(faker.providers.BaseProvider):
     def course_curriculum(self):
@@ -100,9 +107,8 @@ class Command(BaseCommand):
                 first_name=first_name,
                 username=first_name,
                 last_name=last_name,
-                country="Ghana",
-                city="Accra",
                 email=email,
+                type=random.choice(USER_TYPES),
                 password="testing321",
                 is_active=True,
             )
@@ -144,9 +150,9 @@ class Command(BaseCommand):
             course = Course.objects.create(
                 curriculum=Curriculum.objects.order_by("?").first(),
                 year=Year.objects.order_by("?").first(),
-                instructor=Profile.objects.order_by("?").first(),
+                instructor=CourseInstructor.objects.order_by("?").first(),
                 title=random.choice(COURSE_TITLE),
-                description=fake.text(max_nb_chars=70),
+                description=fake.text(max_nb_chars=100),
                 cover_image="http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg",
                 price=(round(random.uniform(9.99, 99.99), 2)),
                 pay=random.choice(pay),
@@ -155,4 +161,9 @@ class Command(BaseCommand):
             )
 
             for i in range(len(LESSON_TITLE)):
-                Lesson.objects.create(course_id=course.id, title=LESSON_TITLE[i], description="I love what this it")
+                Lesson.objects.create(
+                    course_id=course.id,
+                    title=LESSON_TITLE[i],
+                    description="I love what this it",
+                    video="http://localhost:8000/media/lesson_videos/videoplayback_1.mp4",
+                )

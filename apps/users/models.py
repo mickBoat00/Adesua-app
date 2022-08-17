@@ -29,6 +29,9 @@ class CustomUserManager(BaseUserManager):
         if not last_name:
             raise ValueError(_("Users must submit a last name"))
 
+        if not type:
+            raise ValueError(_("A type of user must be defined"))
+
         if email:
             email = self.normalize_email(email)
             self.email_validator(email)
@@ -75,6 +78,14 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    class Type(models.TextChoices):
+        STUDENT = "STUDENT", "Student"
+        INSTRUCTOR = "INSTRUCTOR", "Instructor"
+        REVIEWER = "REVIEWER", "Reviewer"
+        ADMIN = "ADMIN", "Admin"
+
+    type = models.CharField(_("Type"), max_length=50, choices=Type.choices, default=Type.ADMIN)
+
     pkid = models.BigAutoField(primary_key=True, editable=False)
     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     username = models.CharField(verbose_name=_("Username"), max_length=255, unique=True)
@@ -91,6 +102,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         "username",
         "first_name",
         "last_name",
+        "type",
     ]
 
     objects = CustomUserManager()
@@ -104,7 +116,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} - {self.last_name}"
 
     def get_short_name(self):
         return self.username
@@ -118,3 +130,45 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 post_save.connect(create_user_profile, sender=User)
+
+
+class StudentManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=User.Type.STUDENT)
+
+
+class Student(User):
+    base_type = User.Type.STUDENT
+
+    objects = StudentManager()
+
+    class Meta:
+        proxy = True
+
+
+class CourseInstructorManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=User.Type.INSTRUCTOR)
+
+
+class CourseInstructor(User):
+    base_type = User.Type.INSTRUCTOR
+
+    objects = CourseInstructorManager()
+
+    class Meta:
+        proxy = True
+
+
+class ReviewerManager(BaseUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=User.Type.REVIEWER)
+
+
+class Reviewer(User):
+    base_type = User.Type.REVIEWER
+
+    objects = ReviewerManager()
+
+    class Meta:
+        proxy = True
