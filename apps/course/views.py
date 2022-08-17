@@ -4,7 +4,9 @@ from rest_framework import filters, generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
-from ..users.models import CourseInstructor
+from apps.promotion.tasks import activate_user_promotion
+from apps.users.models import CourseInstructor
+
 from .models import Course, Curriculum, Lesson
 from .permissions import (
     CourseInstructorPerm,
@@ -39,6 +41,19 @@ class CourseListAPIView(generics.ListAPIView):
     ]
 
     filterset_class = CourseFilter
+
+    # def get_queryset(self):
+    #     user = self.request.user
+
+    #     if user.type == "STUDENT":
+    #         my_promotion = user.promotion.first()
+    #         print("my promo", my_promotion)
+    #         if my_promotion:
+    #             promo_id = my_promotion.promotion.id
+    #             print("promo id", promo_id)
+    #             activate_user_promotion.delay(promo_id)
+
+    # return super().get_queryset()
 
 
 class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

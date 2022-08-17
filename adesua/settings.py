@@ -213,9 +213,9 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 
-CELERY_BEAT_SCHEDULE = {
-    "scheduled_task": {"task": "apps.promotion.tasks.promotion_management", "schedule": crontab(minute="*")}
-}
+# CELERY_BEAT_SCHEDULE = {
+#     "scheduled_task": {"task": "apps.promotion.tasks.promotion_management", "schedule": crontab(minute="*")}
+# }
 
 
 CELERY_BROKER_URL = "redis://redis:6379/0"

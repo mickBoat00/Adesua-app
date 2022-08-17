@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -7,6 +8,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.course.models import Course
+from apps.users.models import CourseInstructor, Student
 
 User = get_user_model()
 
@@ -106,3 +108,46 @@ class CoursesOnPromotion(models.Model):
 
     class Meta:
         unique_together = (("course_id", "promotion_id"),)
+
+
+class UserPromotion(models.Model):
+    student = models.ForeignKey(Student, related_name="promotion", on_delete=models.CASCADE)
+    promotion = models.ForeignKey(Promotion, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.promotion.name }- {self.student.username}"
+
+
+class TrailCourse(models.Model):
+    instructor = models.ForeignKey(CourseInstructor, related_name="courses_on_trail", on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=False)
+    courses_on_trail = models.ManyToManyField(
+        Course,
+        related_name="courses_on_trail",
+        through="CoursesOnTrail",
+    )
+
+    def __str__(self):
+        return f"{self.name} - {self.instructor.username}'s Courses "
+
+
+class CoursesOnTrail(models.Model):
+    course_id = models.ForeignKey(
+        Course,
+        related_name="trail",
+        on_delete=models.PROTECT,
+    )
+    trail_id = models.ForeignKey(
+        TrailCourse,
+        related_name="on_trail",
+        on_delete=models.CASCADE,
+    )
+
+    on_trail = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("course_id", "trail_id"),)

@@ -30,23 +30,6 @@ class CreateLessonPerm(permissions.BasePermission):
             return True
 
 
-# class CourseInstrutorPerm(permissions.BasePermission):
-
-#     message = "Only Course instructor is allowed to perform this action."
-
-#     def has_object_permission(self, request, view, obj):
-
-#         if not request.user.is_authenticated:
-#             if request.method in permissions.SAFE_METHODS:
-#                 return True
-#             return False
-
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-
-#         return obj.instructor == request.user
-
-
 class CourseInstrutorPerm(permissions.BasePermission):
 
     message = "Only Course instructor is allowed to perform this action."

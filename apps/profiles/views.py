@@ -27,13 +27,6 @@ class UpdateMyProfileAPIView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
 
-        # if request.user is not the profile owner
-        # do not allow update
-
-        print("serializer", serializer)
-        # print('serializer first',serializer[0])
-        # print('serializer.validated_data',serializer.validated_data)
-
         return super().perform_update(serializer)
 
 

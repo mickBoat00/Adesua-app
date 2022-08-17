@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.course.models import Course
 
-from .models import CoursesOnPromotion, Promotion
+from .models import CoursesOnPromotion, Promotion, UserPromotion
 
 
 class PromotionsSerializers(serializers.ModelSerializer):
@@ -31,3 +31,12 @@ class PromotionsSerializers(serializers.ModelSerializer):
             "created_by",
         ]
         read_only_fields = ["is_active", "created_by"]
+
+
+class UserPromotionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPromotion
+        fields = [
+            "student",
+            "promotion",
+        ]
