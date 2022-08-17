@@ -125,6 +125,7 @@ class TrailCourse(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField(default=False)
+    is_scheduled = models.BooleanField(default=True)
     courses_on_trail = models.ManyToManyField(
         Course,
         related_name="courses_on_trail",

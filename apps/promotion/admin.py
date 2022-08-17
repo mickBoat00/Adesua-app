@@ -3,12 +3,12 @@ from django.contrib import admin
 from .models import (
     Coupon,
     CoursesOnPromotion,
+    CoursesOnTrail,
     Promotion,
     PromoType,
     TrailCourse,
     UserPromotion,
 )
-from .tasks import promotion_management, promotion_prices
 
 admin.site.register(PromoType)
 
@@ -28,4 +28,17 @@ class PromotionAdmin(admin.ModelAdmin):
 admin.site.register(Promotion, PromotionAdmin)
 admin.site.register(Coupon)
 admin.site.register(UserPromotion)
-admin.site.register(TrailCourse)
+
+
+class CoursesOnTrailAdmin(admin.StackedInline):
+    model = TrailCourse.courses_on_trail.through
+    extra = 2
+
+
+class TrailCourseAdmin(admin.ModelAdmin):
+    list_display = ["name", "start_date", "end_date", "is_active", "is_scheduled"]
+    inlines = (CoursesOnTrailAdmin,)
+
+
+admin.site.register(TrailCourse, TrailCourseAdmin)
+admin.site.register(CoursesOnTrail)

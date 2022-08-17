@@ -5,7 +5,7 @@ from math import ceil
 from celery import shared_task
 from django.db import transaction
 
-from .models import CoursesOnPromotion, Promotion
+from .models import CoursesOnPromotion, Promotion, TrailCourse
 
 
 @shared_task()
@@ -64,6 +64,53 @@ def activate_user_promotion(promo_id):
     promotion.save()
 
 
+"""
+    PROMOTION ACTIVATION PSEUDOCODE
+
+
+    get all promotions on schedule
+
+    for each promotion:
+        if end_date < now:
+            set promotion is_active to false 
+            # cos its done its work 
+
+            
+            course in that promo's promo_price should be set to null
+            # those course will be activated by another promo if they are in that promo
+
+            promo. is_schedule set to false
+            # so its not queried again
+
+
+        else:
+            # means promotion.end_date is not yet up
+
+            if promotion.start_date <= now:
+                # activate it
+                get all courses in that promotion
+
+                get promotion reduction % or promotion reduction amount
+
+                for each course in promotion:
+                    get it orginal price
+
+                    calculate each courses promo_price based on orginal price and promotion reduction
+
+                    save course promo_price
+
+            else:
+                # means now is days/minutes into the start of the promo
+                # do we have to do something ?
+                # no
+
+            promotion set to active
+        
+        save promo
+            
+"""
+
+
 @shared_task()
 def promotion_management():
     with transaction.atomic():
@@ -104,3 +151,65 @@ def promotion_management():
                     promo.is_active = False
 
             promo.save()
+
+
+"""
+
+    TRAIL ACTIVATION PSEUDOCODE
+
+    Get all trails on schedule
+
+    for each trail :
+
+        if trail.end_date < now:
+            set on_trail for its courses to False 
+            set trail to inactive
+            set trail.is_schedule to false
+        else:
+            if trail start_date <= now:
+                get all courses in that trail
+
+                for each course:
+                    set on_trail for its courses to True
+                    save course
+
+            set trail to active
+
+        save trail
+
+"""
+
+
+@shared_task
+def activate_free_trail():
+    with transaction.atomic():
+        trails = TrailCourse.objects.filter(is_scheduled=True)
+
+        now = datetime.now().date()
+
+        for trail in trails:
+            courses_on_trail = trail.courses_on_trail.through.objects.all()
+
+            if trail.end_date < now:
+                print("task ends")
+                for course in courses_on_trail:
+                    course.on_trail = False
+                    course.save()
+
+                trail.is_active = False
+                trail.is_scheduled = False
+
+            else:
+                print("task not ended")
+                if trail.start_date <= now:
+                    print("task here")
+
+                    for course in courses_on_trail:
+                        course.on_trail = True
+                        course.save()
+
+                    trail.is_active = True
+
+                print("task here last")
+
+            trail.save()
