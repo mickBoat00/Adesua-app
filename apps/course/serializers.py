@@ -1,9 +1,8 @@
-from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Avg, Q, Sum
 from rest_framework import serializers
 
-from apps.promotion.models import Promotion
+from apps.promotion.models import Promotion, TrailCourse
 from apps.users.models import CourseInstructor
 from apps.users.serializers import UserSerializer
 
@@ -17,6 +16,7 @@ class CourseListSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
     promotion_price = serializers.SerializerMethodField()
+    on_trail = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -33,8 +33,18 @@ class CourseListSerializer(serializers.ModelSerializer):
             "pay",
             "price",
             "promotion_price",
+            "on_trail",
         ]
         read_only_fields = ["slug", "rating", "raters"]
+
+    def get_on_trail(self, obj):
+        try:
+            x = TrailCourse.courses_on_trail.through.objects.get(Q(trail_id__is_active=True) & Q(course_id=obj.id))
+
+            return x.on_trail
+
+        except ObjectDoesNotExist:
+            return None
 
     def get_promotion_price(self, obj):
 

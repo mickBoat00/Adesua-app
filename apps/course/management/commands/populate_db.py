@@ -2,6 +2,7 @@ import random
 
 import faker.providers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
@@ -109,7 +110,7 @@ class Command(BaseCommand):
                 last_name=last_name,
                 email=email,
                 type=random.choice(USER_TYPES),
-                password="testing321",
+                password=make_password("testing321"),
                 is_active=True,
             )
 

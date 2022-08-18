@@ -12,6 +12,7 @@ from .validators import validate_user_type
 
 class CourseEnrollment(models.Model):
     course = models.ForeignKey(Course, related_name="enrollments", on_delete=models.CASCADE)
+
     student = models.ForeignKey(
         Student,
         related_name="courses_enrolled",
@@ -25,6 +26,7 @@ class CourseEnrollment(models.Model):
         default=0.0,
         validators=[MinValueValidator(Decimal("0.0"))],
     )
+    course_on_free_trail = models.BooleanField(default=False)
 
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)

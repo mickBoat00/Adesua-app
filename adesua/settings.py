@@ -216,7 +216,7 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task": {
         "task": "apps.promotion.tasks.promotion_management",
-        "schedule": crontab(minute="10"),
+        "schedule": crontab(minute="*"),
         "task": "apps.promotion.tasks.activate_free_trail",
         "schedule": crontab(minute="*"),
     }
