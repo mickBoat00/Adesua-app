@@ -204,7 +204,7 @@ DJOSER = {
 ELASTICSEARCH_DSL = {"default": {"hosts": "esearch"}}
 
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
@@ -214,12 +214,14 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 
 CELERY_BEAT_SCHEDULE = {
-    "scheduled_task": {
+    "scheduled_promotion_activation": {
         "task": "apps.promotion.tasks.promotion_management",
-        "schedule": crontab(minute="10"),
+        "schedule": crontab(minute="*"),
+    },
+    "scheduled_trail_activation": {
         "task": "apps.promotion.tasks.activate_free_trail",
-        "schedule": crontab(minute="10"),
-    }
+        "schedule": crontab(minute="*"),
+    },
 }
 
 

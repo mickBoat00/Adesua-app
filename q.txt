@@ -1,18 +1,1 @@
-from apps.course.models import Course
-from apps.users.models import User
-from apps.students.models import CourseEnrollment
-
-
-c = Course.objects.get(pk=5)
-
-u = User.objects.get(pk=19)
-
-CourseEnrollment.objects.create(course=c, student=u, price=10)
-
-
-
-   #         course_price = promo.CoursesOnPromotion.price
-        #         print("course_price", course_price)
-        #         new_price = ceil(course_price - (course_price * Decimal(reduction)))
-        #         promo.price_price = new_price
-        #         promo.save()
+more info at reviewer pending courses endpoint

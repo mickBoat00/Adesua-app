@@ -28,11 +28,13 @@ class CourseEnrollment(models.Model):
     )
     course_on_free_trail = models.BooleanField(default=False)
 
+    is_active = models.BooleanField(default=True)
+
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ["course", "student"]
+        unique_together = ["course", "student", "is_active"]
 
     def __str__(self):
         return f"{self.course.title} - {self.student.username}"

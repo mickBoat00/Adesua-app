@@ -8,23 +8,22 @@ from django.db import transaction
 from apps.reviewers.tasks import send_course_email
 from apps.students.models import CourseEnrollment
 
-from .models import CoursesOnPromotion, Promotion, TrailCourse
+from .models import CoursesOnPromotion, Promotion, TrialCourse
 
+# @shared_task()
+# def promotion_prices(reduction_amount, obj_id):
+#     pass
 
-@shared_task()
-def promotion_prices(reduction_amount, obj_id):
-    pass
+# with transaction.atomic():
+#     promotions = Promotion.courses_on_promotion.through.objects.filter(promotion_id=obj_id)
+#     reduction = reduction_amount / 100
 
-    # with transaction.atomic():
-    #     promotions = Promotion.courses_on_promotion.through.objects.filter(promotion_id=obj_id)
-    #     reduction = reduction_amount / 100
-
-    #     for promo in promotions:
-    #         if promo.price_override == False:
-    #             course_price = promo.course_id.price
-    #             new_price = ceil(course_price - (course_price * Decimal(reduction)))
-    #             promo.promo_price = Decimal(new_price)
-    #             promo.save()
+#     for promo in promotions:
+#         if promo.price_override == False:
+#             course_price = promo.course_id.price
+#             new_price = ceil(course_price - (course_price * Decimal(reduction)))
+#             promo.promo_price = Decimal(new_price)
+#             promo.save()
 
 
 @shared_task()
@@ -50,7 +49,8 @@ def activate_user_promotion(promo_id):
                         course_price = course.course_id.price
 
                         if discount_percentage > 0:
-                            new_price = ceil(course_price - (course_price * Decimal(discount_percentage)))
+                            # new_price = ceil(course_price - (course_price * Decimal(discount_percentage)))
+                            new_price = course_price * Decimal(discount_percentage)
                         elif discount_amount > 0:
                             new_price = course_price - discount_amount
                         else:
@@ -122,6 +122,7 @@ def promotion_management():
         now = datetime.now().date()
 
         for promo in promotions:
+            print("promo", promo.name)
             discount_percentage = promo.promo_percentage / 100
             discount_amount = promo.promo_amount
 
@@ -132,21 +133,34 @@ def promotion_management():
                 if promo.promo_start <= now:
                     if promo.is_active != True:
 
-                        courses_on_promo = promo.courses_on_promotion.through.objects.all()
+                        promotion_courses = promo.courses_on_promotion.through.objects.filter(promotion_id=promo)
 
-                        for course in courses_on_promo:
-                            if course.price_override == False:
-                                course_price = course.course_id.price
+                        print("promotion_courses", promotion_courses)
+
+                        for course_on_promo in promotion_courses:
+                            course_on_promo.promo_price = 0
+                            print("----------------")
+                            print("course", course_on_promo.id)
+                            print("course", course_on_promo.course_id)
+                            print("course", course_on_promo.promotion_id.name)
+                            print("course", course_on_promo.promo_price)
+                            print("----------------")
+                            if course_on_promo.price_override == False:
+                                course_price = course_on_promo.course_id.price
 
                                 if discount_percentage > 0:
-                                    new_price = ceil(course_price - (course_price * Decimal(discount_percentage)))
+                                    # new_price = ceil(course_price - (course_price * Decimal(discount_percentage)))
+                                    print("Decimal(discount_percentage)?", Decimal(discount_percentage))
+                                    new_price = course_price * Decimal(discount_percentage)
+                                    print("new_price?", new_price)
                                 elif discount_amount > 0:
+                                    # new_price = course_price - discount_amount
                                     new_price = course_price - discount_amount
                                 else:
                                     new_price = 0
 
-                                course.promo_price = Decimal(new_price)
-                                course.save()
+                                course_on_promo.promo_price = Decimal(new_price)
+                                course_on_promo.save()
 
                         promo.is_active = True
 
@@ -186,7 +200,7 @@ def promotion_management():
 @shared_task
 def activate_free_trail():
     with transaction.atomic():
-        trails = TrailCourse.objects.filter(is_scheduled=True)
+        trails = TrialCourse.objects.filter(is_scheduled=True)
 
         now = datetime.now().date()
 
@@ -194,16 +208,14 @@ def activate_free_trail():
             courses_on_trail = trail.courses_on_trail.through.objects.all()
 
             if trail.end_date < now:
-                print("task ends")
                 for course in courses_on_trail:
                     course.on_trail = False
                     course.save()
-                    print("end course", course)
-                    print("ssaaa", course.course_id)
 
                     course = course.course.id
 
                     courseEnrollment = CourseEnrollment.objects.get(course=course, course_on_free_trail=True)
+                    courseEnrollment.is_active = False
 
                     student = courseEnrollment.student.email
 
@@ -213,32 +225,16 @@ def activate_free_trail():
                         "trial_ended_email_message.txt",
                     )
 
-                    # course = course.course_id
-
-                    # course.enrollments.all()
-
-                    """
-                        Send an email to the person enrolled in a course
-                        that the free trail has ended.
-
-                        Prevent access to course lessons
-
-                    """
-
                 trail.is_active = False
                 trail.is_scheduled = False
 
             else:
-                print("task not ended")
                 if trail.start_date <= now:
-                    print("task here")
 
                     for course in courses_on_trail:
                         course.on_trail = True
                         course.save()
 
                     trail.is_active = True
-
-                print("task here last")
 
             trail.save()

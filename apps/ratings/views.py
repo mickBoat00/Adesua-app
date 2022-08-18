@@ -30,7 +30,7 @@ class CourseRating(generics.CreateAPIView):
         if rater == course.instructor:
             return Response({"fail": "sorry you cannot rate your own course"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        elif course.enrollments.filter(student=rater).exists():
+        elif course.enrollments.filter(student=rater, is_active=True).exists():
 
             serializer = self.get_serializer(data=request.data)
 

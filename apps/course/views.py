@@ -42,19 +42,6 @@ class CourseListAPIView(generics.ListAPIView):
 
     filterset_class = CourseFilter
 
-    # def get_queryset(self):
-    #     user = self.request.user
-
-    #     if user.type == "STUDENT":
-    #         my_promotion = user.promotion.first()
-    #         print("my promo", my_promotion)
-    #         if my_promotion:
-    #             promo_id = my_promotion.promotion.id
-    #             print("promo id", promo_id)
-    #             activate_user_promotion.delay(promo_id)
-
-    # return super().get_queryset()
-
 
 class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [CourseInstrutorPerm]

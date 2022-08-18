@@ -63,7 +63,7 @@ class LessonsDetailPerm(permissions.BasePermission):
             if course.instructor == request.user:
                 return True
 
-            elif course.enrollments.filter(student=request.user).exists():
+            elif course.enrollments.filter(student=request.user, is_active=True).exists():
                 return True
 
             return False
@@ -77,7 +77,7 @@ class SingleLessonPerm(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
 
         if request.method in permissions.SAFE_METHODS:
-            if obj.course.enrollments.filter(student=request.user).exists():
+            if obj.course.enrollments.filter(student=request.user, is_active=True).exists():
                 return True
             elif obj.course.instructor == request.user:
                 return True

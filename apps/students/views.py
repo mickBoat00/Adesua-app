@@ -3,7 +3,7 @@ from django.db.models import Q
 from rest_framework import generics
 from rest_framework.decorators import permission_classes
 
-from apps.promotion.models import TrailCourse, UserPromotion
+from apps.promotion.models import TrialCourse, UserPromotion
 from apps.promotion.serializers import UserPromotionSerializer
 
 from .models import CourseEnrollment
@@ -21,7 +21,7 @@ class StudentEnrollmentAPIView(generics.CreateAPIView):
         course = serializer.validated_data.get("course")
 
         try:
-            x = TrailCourse.courses_on_trail.through.objects.get(Q(trail_id__is_active=True) & Q(course_id=course))
+            x = TrialCourse.courses_on_trail.through.objects.get(Q(trail_id__is_active=True) & Q(course_id=course))
 
             if x.on_trail == True:
                 serializer.save(course_on_free_trail=True, student=self.request.user)

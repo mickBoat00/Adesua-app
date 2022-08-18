@@ -8,7 +8,7 @@ from .serializers import PromotionsSerializers  # , CoursesOnPromotionsSerialize
 
 
 class InstructorAdminOnly(permissions.BasePermission):
-    message = "You are not a course ADMIN or an ADMIN."
+    message = "You are not a course Instructor or an ADMIN."
 
     """
         Check if the request.user's type is INSTRUCTOR or and ADMIN
@@ -26,16 +26,23 @@ class PromotionListCreateAPIView(viewsets.ModelViewSet):
     serializer_class = PromotionsSerializers
 
     def list(self, request):
-        queryset = Promotion.objects.filter(created_by=request.user)
+        if request.user.type == "ADMIN":
+            queryset = Promotion.objects.all()
+        else:
+            queryset = Promotion.objects.filter(created_by=request.user)
+
         serializer = PromotionsSerializers(queryset, many=True)
+
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset = Promotion.objects.filter(created_by=request.user)
+
         return super().retrieve(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         self.queryset = Promotion.objects.filter(created_by=request.user)
+
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):

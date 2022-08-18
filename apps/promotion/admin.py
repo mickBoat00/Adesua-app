@@ -3,10 +3,10 @@ from django.contrib import admin
 from .models import (
     Coupon,
     CoursesOnPromotion,
-    CoursesOnTrail,
+    CoursesOnTrial,
     Promotion,
     PromoType,
-    TrailCourse,
+    TrialCourse,
     UserPromotion,
 )
 
@@ -21,7 +21,7 @@ class CoursesOnPromotionAdmin(admin.StackedInline):
 
 
 class PromotionAdmin(admin.ModelAdmin):
-    list_display = ["name", "is_active", "promo_start", "promo_end"]
+    list_display = ["name", "is_active", "promo_percentage", "promo_amount", "promo_start", "promo_end"]
     inlines = (CoursesOnPromotionAdmin,)
 
 
@@ -30,15 +30,15 @@ admin.site.register(Coupon)
 admin.site.register(UserPromotion)
 
 
-class CoursesOnTrailAdmin(admin.StackedInline):
-    model = TrailCourse.courses_on_trail.through
+class CoursesOnTrialAdmin(admin.StackedInline):
+    model = TrialCourse.courses_on_trail.through
     extra = 2
 
 
-class TrailCourseAdmin(admin.ModelAdmin):
+class TrialCourseAdmin(admin.ModelAdmin):
     list_display = ["name", "start_date", "end_date", "is_active", "is_scheduled"]
-    inlines = (CoursesOnTrailAdmin,)
+    inlines = (CoursesOnTrialAdmin,)
 
 
-admin.site.register(TrailCourse, TrailCourseAdmin)
-admin.site.register(CoursesOnTrail)
+admin.site.register(TrialCourse, TrialCourseAdmin)
+admin.site.register(CoursesOnTrial)
