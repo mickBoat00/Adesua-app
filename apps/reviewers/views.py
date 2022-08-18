@@ -40,7 +40,7 @@ class UpdatePendingCoureAPIView(generics.RetrieveUpdateAPIView):
             course_title = course.title
             instructor_email = course.instructor.email
 
-            send_course_email.delay(course_title, instructor_email)
+            send_course_email.delay(course_title, instructor_email, "email_message.txt")
 
         return super().perform_update(serializer)
 

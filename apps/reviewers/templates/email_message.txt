@@ -6,4 +6,4 @@ Please go to the home page to see your course listed:
 
 Thanks for using our site!
 
-The localhost:8000 team
+The Adesua team

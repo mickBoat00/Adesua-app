@@ -5,6 +5,7 @@ from math import ceil
 from celery import shared_task
 from django.db import transaction
 
+from apps.reviewers.tasks import send_course_email
 from apps.students.models import CourseEnrollment
 
 from .models import CoursesOnPromotion, Promotion, TrailCourse
@@ -197,6 +198,32 @@ def activate_free_trail():
                 for course in courses_on_trail:
                     course.on_trail = False
                     course.save()
+                    print("end course", course)
+                    print("ssaaa", course.course_id)
+
+                    course = course.course.id
+
+                    courseEnrollment = CourseEnrollment.objects.get(course=course, course_on_free_trail=True)
+
+                    student = courseEnrollment.student.email
+
+                    send_course_email.delay(
+                        courseEnrollment.student.course_id.title,
+                        courseEnrollment.student.email,
+                        "trial_ended_email_message.txt",
+                    )
+
+                    # course = course.course_id
+
+                    # course.enrollments.all()
+
+                    """
+                        Send an email to the person enrolled in a course
+                        that the free trail has ended.
+
+                        Prevent access to course lessons
+
+                    """
 
                 trail.is_active = False
                 trail.is_scheduled = False
