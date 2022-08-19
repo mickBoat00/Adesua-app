@@ -1,11 +1,10 @@
+from apps.course.models import Course, Curriculum, Year
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.urls import reverse
 from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-
-from apps.course.models import Course, Curriculum, Year
 
 User = get_user_model()
 
@@ -15,10 +14,9 @@ fake = Faker()
 
 import pytest
 
-
-def test_demo(test_fixture1):
-    print("function_fixture")
-    assert test_fixture1 == 1
+# def test_demo(test_fixture1):
+#     print("function_fixture")
+#     assert test_fixture1 == 1
 
 
 # class CourseTests(APITestCase):

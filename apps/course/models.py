@@ -108,14 +108,6 @@ class Course(TimeStampModel):
         return self.title
 
 
-class Student(TimeStampModel):
-    course = models.ForeignKey(Course, related_name="students", on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.course} --- {self.profile.user.get_full_name}"
-
-
 class Lesson(TimeStampModel):
     course = models.ForeignKey(Course, related_name="lessons", on_delete=models.CASCADE)
     title = models.CharField(verbose_name=_("Lesson Title"), max_length=100)
