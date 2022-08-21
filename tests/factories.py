@@ -7,6 +7,8 @@ fake = Faker()
 
 User = get_user_model()
 
+from apps.users.models import CustomUserManager, User
+
 
 class CurriculumFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -32,6 +34,16 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = "mikeboateng17@gmail.com"
     type = "INSTRUCTOR"
     password = "testing321"
+    is_active = True
+    is_staff = False
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        manager = cls._get_manager(model_class)
+        if "is_superuser" in kwargs:
+            return manager.create_superuser(*args, **kwargs)
+        else:
+            return manager.create_user(*args, **kwargs)
 
 
 class CourseFactory(factory.django.DjangoModelFactory):
@@ -60,3 +72,8 @@ class LessonFactory(factory.django.DjangoModelFactory):
     slug = "lesson-one"
     description = "This is the first Lesson for the course Mathematics for Year 12"
     video = "http://localhost:8000/media//lesson_videos/videoplayback_1.mp4"
+
+
+"""
+Users app Factory
+"""

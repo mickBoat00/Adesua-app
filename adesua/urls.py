@@ -7,7 +7,7 @@ from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("apps.course.urls")),
+    path("api/", include("apps.course.urls", namespace="course")),
     path("api/profile/", include("apps.profiles.urls")),
     path("api/ratings/", include("apps.ratings.urls", namespace="ratings")),
     path("api/search/", include("apps.search.urls")),
