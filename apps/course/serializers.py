@@ -85,7 +85,6 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     lessons = serializers.StringRelatedField(many=True)
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
-    students = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -100,7 +99,6 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "price",
             "rating",
             "raters",
-            "students",
             "lessons",
             "pay",
             "published_status",

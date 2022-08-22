@@ -7,7 +7,7 @@ fake = Faker()
 
 User = get_user_model()
 
-from apps.users.models import CustomUserManager, User
+from apps.users.models import CourseInstructor, CustomUserManager, User
 
 
 class CurriculumFactory(factory.django.DjangoModelFactory):
@@ -24,7 +24,7 @@ class YearFactory(factory.django.DjangoModelFactory):
     value = 12
 
 
-class UserFactory(factory.django.DjangoModelFactory):
+class FirstInstructorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
@@ -37,13 +37,33 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_active = True
     is_staff = False
 
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        manager = cls._get_manager(model_class)
-        if "is_superuser" in kwargs:
-            return manager.create_superuser(*args, **kwargs)
-        else:
-            return manager.create_user(*args, **kwargs)
+
+class UserInstructorFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = User
+
+    first_name = "ui"
+    last_name = "iod"
+    username = "io"
+    email = "iouid@gmail.com"
+    type = "INSTRUCTOR"
+    password = "testing321"
+    is_active = True
+    is_staff = False
+
+
+class StudentUserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = User
+
+    first_name = "s"
+    last_name = "s"
+    username = "s"
+    email = "student@gmail.com"
+    type = "STUDENT"
+    password = "testing321"
+    is_active = True
+    is_staff = False
 
 
 class CourseFactory(factory.django.DjangoModelFactory):
@@ -52,7 +72,7 @@ class CourseFactory(factory.django.DjangoModelFactory):
 
     curriculum = factory.SubFactory(CurriculumFactory)
     year = factory.SubFactory(YearFactory)
-    instructor = factory.SubFactory(UserFactory)
+    instructor = factory.SubFactory(FirstInstructorFactory)
     title = "Mathematics"
     slug = "mathematics"
     description = "Mathematics for Year 12"
