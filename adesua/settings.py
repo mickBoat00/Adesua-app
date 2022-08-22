@@ -60,6 +60,9 @@ INSTALLED_APPS = [
     "apps.reviewers",
     "apps.students",
     "apps.promotion",
+    "oauth2_provider",
+    "social_django",
+    "drf_social_oauth2",
 ]
 
 MIDDLEWARE = [
