@@ -6,8 +6,6 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
-    # Oauth
-    path("auth/", include("drf_social_oauth2.urls", namespace="drf")),
     path("admin/", admin.site.urls),
     path("api/", include("apps.course.urls", namespace="course")),
     path("api/profile/", include("apps.profiles.urls")),
@@ -16,6 +14,8 @@ urlpatterns = [
     path("api/reviewers/", include("apps.reviewers.urls")),
     path("api/students/", include("apps.students.urls", namespace="student")),
     path("api/promotion/", include("apps.promotion.urls", namespace="promotion")),
+    path("api/auth/", include("djoser.urls")),
+    path("api/auth/", include("djoser.urls.jwt")),
     path("docs/", include_docs_urls(title="AdesuaAPI")),
     path(
         "schema",

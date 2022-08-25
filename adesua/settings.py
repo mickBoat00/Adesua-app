@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "djoser",
+    "rest_framework_simplejwt",
     "django_elasticsearch_dsl",
     "djcelery_email",
     "django_filters",
@@ -58,9 +60,6 @@ INSTALLED_APPS = [
     "apps.reviewers",
     "apps.students",
     "apps.promotion",
-    "oauth2_provider",
-    "social_django",
-    "drf_social_oauth2",
 ]
 
 MIDDLEWARE = [
@@ -156,6 +155,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
