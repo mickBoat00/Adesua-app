@@ -3,6 +3,47 @@ from rest_framework import permissions
 from .models import Course
 
 
+class AACourseInstrutorPerm(permissions.BasePermission):
+
+    message = "Only Course instructor is allowed to perform this action."
+
+    def has_object_permission(self, request, view, obj):
+        print("77777777777777777777")
+
+        # if obj.status == "Pending" and request.user != obj.instructor:
+        #     return False
+
+        # if not request.user.is_authenticated:
+        #     if request.method in permissions.SAFE_METHODS:
+        #         return True
+        #     return False
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.instructor == request.user
+
+
+class AALessonPerm(permissions.BasePermission):
+
+    message = "Only Course instructor is allowed to perform this action."
+
+    def has_object_permission(self, request, view, obj):
+
+        # if obj.status == "Pending" and request.user != obj.instructor:
+        #     return False
+
+        # if not request.user.is_authenticated:
+        #     if request.method in permissions.SAFE_METHODS:
+        #         return True
+        #     return False
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.instructor == request.user
+
+
 class CourseInstructorPerm(permissions.BasePermission):
     message = "You are not a course instructor."
 
@@ -55,8 +96,9 @@ class LessonsDetailPerm(permissions.BasePermission):
     message = "You are not enrolled in this course, hence can't view lessons."
 
     def has_permission(self, request, view):
+        print("uuuuuuuuuuuuuuuuuuuuuuuuu")
 
-        course = Course.objects.get(slug=view.kwargs.get("slug"))
+        course = Course.objects.get(slug=view.kwargs.get("courseslug"))
 
         if request.method in permissions.SAFE_METHODS:
 

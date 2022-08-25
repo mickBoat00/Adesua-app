@@ -59,7 +59,7 @@ class Course(TimeStampModel):
         CourseInstructor,
         verbose_name=_("Course Instructor"),
         validators=[validate_user_type],
-        related_name="instructor",
+        related_name="courses",
         on_delete=models.CASCADE,
     )
     title = models.CharField(verbose_name=_("Course Title"), max_length=100)
