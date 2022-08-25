@@ -32,7 +32,7 @@ class CourseFilter(django_filters.FilterSet):
 
 
 class CourseListAPIView(generics.ListAPIView):
-    queryset = Course.published.all()
+    # queryset = Course.published.all()
     serializer_class = CourseListSerializer
     filter_backends = [
         DjangoFilterBackend,
@@ -42,12 +42,18 @@ class CourseListAPIView(generics.ListAPIView):
 
     filterset_class = CourseFilter
 
+    def get_queryset(self):
+        return Course.published.select_related("year", "curriculum", "instructor")
+
 
 class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [CourseInstrutorPerm]
-    queryset = Course.objects.all()
+    # queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer
     lookup_field = "slug"
+
+    def get_queryset(self):
+        return Course.published.select_related("year", "curriculum", "instructor")
 
 
 class CourseCreateAPIView(generics.CreateAPIView):

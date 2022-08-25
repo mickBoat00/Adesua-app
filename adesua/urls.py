@@ -6,6 +6,8 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
+    path("__debug__/", include("debug_toolbar.urls")),
+    path("api-auth/", include("rest_framework.urls")),
     path("admin/", admin.site.urls),
     path("api/", include("apps.course.urls", namespace="course")),
     path("api/profile/", include("apps.profiles.urls")),

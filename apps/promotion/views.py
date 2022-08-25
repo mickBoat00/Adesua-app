@@ -27,9 +27,9 @@ class PromotionListCreateAPIView(viewsets.ModelViewSet):
 
     def list(self, request):
         if request.user.type == "ADMIN":
-            queryset = Promotion.objects.all()
+            queryset = Promotion.objects.select_related("promo_type", "coupon")
         else:
-            queryset = Promotion.objects.filter(created_by=request.user)
+            queryset = Promotion.objects.select_related("promo_type", "coupon").filter(created_by=request.user)
 
         serializer = PromotionsSerializers(queryset, many=True)
 

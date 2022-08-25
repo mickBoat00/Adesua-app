@@ -6,12 +6,32 @@ from apps.promotion.models import Promotion, TrialCourse
 from apps.users.models import CourseInstructor
 from apps.users.serializers import UserSerializer
 
-from .models import Course, Lesson
+from .models import Course, Curriculum, Lesson, Year
+
+
+class CurriculumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Curriculum
+        fields = [
+            "id",
+            "name",
+        ]
+
+
+class SchoolYearSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Year
+        fields = [
+            "id",
+            "value",
+        ]
 
 
 class CourseListSerializer(serializers.ModelSerializer):
-    curriculum = serializers.StringRelatedField(many=False)
-    year = serializers.StringRelatedField(many=False)
+    # curriculum = serializers.StringRelatedField(many=False)
+    # year = serializers.StringRelatedField(many=False)
+    curriculum = CurriculumSerializer()
+    year = SchoolYearSerializer()
     instructor = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
@@ -80,8 +100,10 @@ class InstructorCourseInlineSerializer(serializers.Serializer):
 
 class CourseDetailSerializer(serializers.ModelSerializer):
     # instructor = InstructorProfileSerializer()
-    curriculum = serializers.StringRelatedField(many=False)
-    year = serializers.StringRelatedField(many=False)
+    # curriculum = serializers.StringRelatedField(many=False)
+    # year = serializers.StringRelatedField(many=False)
+    curriculum = CurriculumSerializer()
+    year = SchoolYearSerializer()
     lessons = serializers.StringRelatedField(many=True)
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
