@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.course.models import Course
 
-from .models import CoursesOnPromotion, Promotion, UserPromotion
+from .models import CoursesOnPromotion, Promotion, TrialCourse, UserPromotion
 
 
 class PromotionsSerializers(serializers.ModelSerializer):
@@ -13,6 +13,8 @@ class PromotionsSerializers(serializers.ModelSerializer):
         many=True,
         queryset=Course.objects.all(),
     )
+
+    created_by = serializers.CharField(source="created_by.username", read_only=True)
 
     class Meta:
         model = Promotion
@@ -30,7 +32,10 @@ class PromotionsSerializers(serializers.ModelSerializer):
             "courses_on_promotion",
             "created_by",
         ]
-        read_only_fields = ["is_active", "created_by"]
+        read_only_fields = [
+            "is_active",
+            "created_by",
+        ]
 
 
 class UserPromotionSerializer(serializers.ModelSerializer):
@@ -39,4 +44,23 @@ class UserPromotionSerializer(serializers.ModelSerializer):
         fields = [
             "student",
             "promotion",
+        ]
+
+
+class CoursesOnTrailSerializer(serializers.ModelSerializer):
+    courses_on_trail = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Course.objects.all(),
+    )
+
+    class Meta:
+        model = TrialCourse
+        fields = [
+            "name",
+            "description",
+            "start_date",
+            "end_date",
+            "is_active",
+            "is_scheduled",
+            "courses_on_trail",
         ]

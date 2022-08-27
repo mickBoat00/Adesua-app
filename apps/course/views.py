@@ -18,7 +18,8 @@ from .serializers import (
 class CourseModelViewset(viewsets.ModelViewSet):
     permission_classes = [AACourseInstrutorPerm]
     serializer_class = CourseListSerializer
-    queryset = Course.objects.all()
+    # queryset = Course.objects.all()
+    queryset = Course.objects.select_related("year", "curriculum", "instructor")
     lookup_field = "slug"
 
     def get_serializer_class(self):
@@ -29,6 +30,9 @@ class CourseModelViewset(viewsets.ModelViewSet):
             return AACourseDetailSerializer
 
         return AACourseCreateSerializer
+
+    def perform_create(self, serializer):
+        return serializer.save(instructor=self.request.user)
 
 
 class LessonModelViewset(viewsets.ModelViewSet):

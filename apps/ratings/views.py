@@ -12,6 +12,10 @@ class CourseRatingModelViewset(viewsets.ModelViewSet):
     permission_classes = [CourseRatingPerm]
     queryset = Rating.objects.all()
 
+    def get_queryset(self):
+        course = Course.objects.get(slug=self.kwargs.get("courseslug"))
+        return self.queryset.filter(course=course)
+
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return RatingReadSerializer

@@ -3,8 +3,11 @@ from rest_framework import generics, permissions, response, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
-from .models import CoursesOnPromotion, Promotion
-from .serializers import PromotionsSerializers  # , CoursesOnPromotionsSerializers,
+from .models import CoursesOnPromotion, Promotion, TrialCourse
+from .serializers import (  # , CoursesOnPromotionsSerializers,
+    CoursesOnTrailSerializer,
+    PromotionsSerializers,
+)
 
 
 class InstructorAdminOnly(permissions.BasePermission):
@@ -20,16 +23,16 @@ class InstructorAdminOnly(permissions.BasePermission):
             return True
 
 
-class PromotionListCreateAPIView(viewsets.ModelViewSet):
+class PromotionModelViewset(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, InstructorAdminOnly]
     queryset = Promotion.objects.all()
     serializer_class = PromotionsSerializers
 
     def list(self, request):
         if request.user.type == "ADMIN":
-            queryset = Promotion.objects.select_related("promo_type", "coupon")
+            queryset = Promotion.objects.select_related("coupon")
         else:
-            queryset = Promotion.objects.select_related("promo_type", "coupon").filter(created_by=request.user)
+            queryset = Promotion.objects.select_related("coupon").filter(created_by=request.user)
 
         serializer = PromotionsSerializers(queryset, many=True)
 
@@ -53,3 +56,11 @@ class PromotionListCreateAPIView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
+class CoursesOnTrailViewset(viewsets.ModelViewSet):
+    queryset = TrialCourse.objects.all()
+    serializer_class = CoursesOnTrailSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(instructor=self.request.user)

@@ -12,7 +12,7 @@ def test_view_courses():
     Test all users can view courses list
     """
 
-    url = reverse("course:course-list")
+    url = reverse("course:courses-list")
     response = client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
 
@@ -23,12 +23,12 @@ def test_view_a_course(db, course):
     Test all users view a particular course's detail.
     """
 
-    url = reverse("course:course-detail", kwargs={"slug": course.slug})
+    url = reverse("course:courses-detail", kwargs={"slug": course.slug})
     response = client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_create_courses(db, firstinstructor, course_curriculum, course_year):
+def test_create_courses(db, course_curriculum, course_year, studentuser, firstinstructor, coursedata):
 
     """
     Test if an unauthenticated user can create course
@@ -36,23 +36,26 @@ def test_create_courses(db, firstinstructor, course_curriculum, course_year):
     Test if only course instructors can create course
     """
 
-    url = reverse("course:course-create")
+    url = reverse("course:courses-list")
     response = client.post(
         url,
-        data={
-            "curriculum": course_curriculum.id,
-            "year": course_year.id,
-            "title": "Science",
-            "description": "fake.paragraph(nb_sentences=5)",
-            "price": "10.99",
-            "pay": "Paid",
-            "published_status": True,
-        },
+        data=coursedata,
         format="json",
     )
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    # A student user logins in
+    client.force_authenticate(user=studentuser)
+
+    response = client.post(
+        url,
+        data=coursedata,
+        format="json",
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # A course instructor logins in
     client.force_authenticate(user=firstinstructor)
 
     response = client.post(
@@ -68,20 +71,20 @@ def test_create_courses(db, firstinstructor, course_curriculum, course_year):
         },
         format="json",
     )
-    print("rs", response.status_code)
     assert response.status_code == status.HTTP_201_CREATED
 
 
-def test_create_course_lesson(db, secondinstructor, course):
+def test_create_course_lesson(db, course, secondinstructor):
 
     """
     Test a situation where a course instructor creates a course and a different course instructor is trying
     to create a lesson for that course
     """
 
+    # A different instructor logs in to create lessons for courses he did not create.
     client.force_authenticate(user=secondinstructor)
 
-    url = reverse("course:course-lesson", kwargs={"slug": course.slug})
+    url = reverse("course:lessons-list", kwargs={"courseslug": course.slug})
     response = client.post(
         url,
         data={
@@ -93,6 +96,8 @@ def test_create_course_lesson(db, secondinstructor, course):
         format="json",
     )
 
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
 
 def test_update_course(db, secondinstructor, course):
 
@@ -103,7 +108,7 @@ def test_update_course(db, secondinstructor, course):
 
     client.force_authenticate(user=secondinstructor)
 
-    url = reverse("course:course-detail", kwargs={"slug": course.slug})
+    url = reverse("course:courses-detail", kwargs={"slug": course.slug})
     response = client.patch(url, data={"price": "9.99", "pay": "Paid", "published_status": "True"}, format="json")
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -123,6 +128,12 @@ def test_student_course_lessons_access(db, studentuser, course):
 
     client.force_authenticate(user=studentuser)
 
-    url = reverse("course:course-lesson", kwargs={"slug": course.slug})
+    url = reverse("course:lessons-list", kwargs={"courseslug": course.slug})
     response = client.get(url, format="json")
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # enrollment_url = reverse("student:course-enrollment")
+    # response = client.post(
+    #     enrollment_url, data={"course": course, "student": studentuser, "price": 10.99}, format="json"
+    # )
+    # assert response.status_code == status.HTTP_403_FORBIDDEN

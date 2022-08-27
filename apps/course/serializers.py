@@ -58,6 +58,8 @@ class InstructorSerializer(serializers.ModelSerializer):
             "other_courses",
         ]
 
+        read_only_fields = fields
+
     def get_other_courses(self, obj):
         instructor_courses = obj.courses.all()
         return OtherCourseSerializer(instructor_courses, many=True).data
@@ -106,8 +108,11 @@ class CourseListSerializer(serializers.ModelSerializer):
             x = Promotion.courses_on_promotion.through.objects.filter(
                 Q(promotion_id__is_active=True) & Q(course_id=obj.id)
             )
+            print("x", x)
 
             discount_amount = x.aggregate(Sum("promo_price")).get("promo_price__sum")
+
+            print("discount_amount", discount_amount)
 
             if discount_amount == None:
                 return None
@@ -201,7 +206,6 @@ class AACourseCreateSerializer(serializers.ModelSerializer):
             "year",
             "id",
             "title",
-            "slug",
             "cover_image",
             "pay",
             "price",

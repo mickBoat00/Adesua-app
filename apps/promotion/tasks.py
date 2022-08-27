@@ -50,7 +50,7 @@ def activate_user_promotion(promo_id):
 
                         if discount_percentage > 0:
                             # new_price = ceil(course_price - (course_price * Decimal(discount_percentage)))
-                            new_price = course_price * Decimal(discount_percentage)
+                            new_price = ceil(course_price * Decimal(discount_percentage))
                         elif discount_amount > 0:
                             new_price = course_price - discount_amount
                         else:
@@ -122,7 +122,6 @@ def promotion_management():
         now = datetime.now().date()
 
         for promo in promotions:
-            print("promo", promo.name)
             discount_percentage = promo.promo_percentage / 100
             discount_amount = promo.promo_amount
 
@@ -139,20 +138,12 @@ def promotion_management():
 
                         for course_on_promo in promotion_courses:
                             course_on_promo.promo_price = 0
-                            print("----------------")
-                            print("course", course_on_promo.id)
-                            print("course", course_on_promo.course_id)
-                            print("course", course_on_promo.promotion_id.name)
-                            print("course", course_on_promo.promo_price)
-                            print("----------------")
+
                             if course_on_promo.price_override == False:
                                 course_price = course_on_promo.course_id.price
 
                                 if discount_percentage > 0:
-                                    # new_price = ceil(course_price - (course_price * Decimal(discount_percentage)))
-                                    print("Decimal(discount_percentage)?", Decimal(discount_percentage))
-                                    new_price = course_price * Decimal(discount_percentage)
-                                    print("new_price?", new_price)
+                                    new_price = ceil(course_price * Decimal(discount_percentage))
                                 elif discount_amount > 0:
                                     # new_price = course_price - discount_amount
                                     new_price = course_price - discount_amount

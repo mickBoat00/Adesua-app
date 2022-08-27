@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from apps.promotion.models import TrialCourse, UserPromotion
 from apps.promotion.serializers import UserPromotionSerializer

@@ -7,6 +7,17 @@ class AACourseInstrutorPerm(permissions.BasePermission):
 
     message = "Only Course instructor is allowed to perform this action."
 
+    def has_permission(self, request, view):
+
+        if request.user.is_anonymous:
+            if request.method in permissions.SAFE_METHODS:
+                return True
+
+        elif request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return request.user.type == "INSTRUCTOR"
+
     def has_object_permission(self, request, view, obj):
         print("77777777777777777777")
 

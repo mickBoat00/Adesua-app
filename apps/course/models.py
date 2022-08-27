@@ -63,7 +63,7 @@ class Course(TimeStampModel):
         on_delete=models.CASCADE,
     )
     title = models.CharField(verbose_name=_("Course Title"), max_length=100)
-    slug = AutoSlugField(populate_from="title", editable=True, unique=True, always_update=True)
+    slug = AutoSlugField(populate_from="title", editable=False, unique=True, always_update=True)
     description = models.TextField()
     cover_image = models.ImageField(verbose_name=_("Main Image"), default="default.png", upload_to="course_images")
     price = models.DecimalField(

@@ -66,6 +66,21 @@ class StudentUserFactory(factory.django.DjangoModelFactory):
     is_staff = False
 
 
+class AdminUserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = User
+
+    first_name = "admin_user"
+    last_name = "admin_user"
+    username = "admin_user"
+    email = "admin@gmail.com"
+    type = "ADMIN"
+    password = "testing321"
+    is_active = True
+    is_staff = True
+    is_superuser = True
+
+
 class CourseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Course
@@ -76,7 +91,7 @@ class CourseFactory(factory.django.DjangoModelFactory):
     title = "Mathematics"
     slug = "mathematics"
     description = "Mathematics for Year 12"
-    cover_image = "http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg"
+    cover_image = "default.png"
     price = 10.99
     pay = "Free"
     status = "Approved"
@@ -91,9 +106,4 @@ class LessonFactory(factory.django.DjangoModelFactory):
     title = "Lesson One"
     slug = "lesson-one"
     description = "This is the first Lesson for the course Mathematics for Year 12"
-    video = "http://localhost:8000/media//lesson_videos/videoplayback_1.mp4"
-
-
-"""
-Users app Factory
-"""
+    video = "videoplayback_1.mp4"

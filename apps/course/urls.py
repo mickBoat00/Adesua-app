@@ -5,7 +5,7 @@ from .views import CourseModelViewset, LessonModelViewset
 
 # from . import views
 
-# app_name = "course"
+app_name = "course"
 
 # urlpatterns = [
 #     path("courses/", views.CourseListAPIView.as_view(), name="course-list"),

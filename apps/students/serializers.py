@@ -9,5 +9,5 @@ from apps.users.serializers import UserSerializer
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
-        fields = ["id", "course", "price", "course_on_free_trail"]
+        fields = ["id", "course", "price", "course_on_free_trail", "is_active"]
         read_only_fields = ["course_on_free_trail"]

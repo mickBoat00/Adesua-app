@@ -2,6 +2,7 @@ import pytest
 from pytest_factoryboy import register
 
 from tests.factories import (  # CourseInstructorFactory,
+    AdminUserFactory,
     CourseFactory,
     CurriculumFactory,
     FirstInstructorFactory,
@@ -18,6 +19,7 @@ register(LessonFactory)
 register(FirstInstructorFactory)
 register(UserInstructorFactory)
 register(StudentUserFactory)
+register(AdminUserFactory)
 
 
 @pytest.fixture
@@ -57,8 +59,8 @@ def firstinstructor(db, first_instructor_factory):
 
 
 @pytest.fixture
-def adminuser(db, user_factory):
-    new_user = user_factory.create(username="admin_user", is_staff=True, is_superuser=True)
+def adminuser(db, admin_user_factory):
+    new_user = admin_user_factory.create()
     return new_user
 
 
@@ -77,11 +79,11 @@ def studentuser(db, student_user_factory):
 @pytest.fixture
 def coursedata(db, student_user_factory):
     return {
-        "curriculum": course_curriculum,
-        "year": course_year,
+        "curriculum": "1",
+        "year": "1",
         "title": "Science",
         "description": "fake.paragraph(nb_sentences=5)",
         "price": "10.99",
         "pay": "Paid",
-        "published_status": True,
+        "published_status": "True",
     }

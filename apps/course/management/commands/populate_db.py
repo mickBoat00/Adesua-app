@@ -154,7 +154,7 @@ class Command(BaseCommand):
                 instructor=CourseInstructor.objects.order_by("?").first(),
                 title=random.choice(COURSE_TITLE),
                 description=fake.text(max_nb_chars=100),
-                cover_image="http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg",
+                cover_image="default.png",
                 price=(round(random.uniform(9.99, 99.99), 2)),
                 pay=random.choice(pay),
                 status="Approved",
@@ -166,5 +166,5 @@ class Command(BaseCommand):
                     course_id=course.id,
                     title=LESSON_TITLE[i],
                     description="I love what this it",
-                    video="http://localhost:8000/media/lesson_videos/videoplayback_1.mp4",
+                    video="videoplayback_1.mp4",
                 )
