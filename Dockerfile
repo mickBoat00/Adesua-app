@@ -8,5 +8,6 @@ COPY requirements.txt requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
-    adduser --disabled-password --no-create-home app
+    adduser --disabled-password --no-create-home app-user
 
+USER app-user
