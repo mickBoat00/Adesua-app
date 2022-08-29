@@ -25,7 +25,10 @@ urlpatterns = [
         get_schema_view(title="Adesua API", description="API for the Adesua Platform Backend..", version="1.0.0"),
         name="openapi-schema",
     ),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 admin.site.site_header = "Adesua Admin"

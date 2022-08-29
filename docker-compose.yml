@@ -1,22 +1,101 @@
-version: "3"
-
+version: "3.8"
 services:
-  backend:
+  app:
     build:
-      context: ./backend
-    command: gunicorn adesua.wsgi --bind 0.0.0.0:8000
-    volumes:
-      - django_build:/backend
+      context: .
     ports:
       - "8000:8000"
-  nginx:
-    image: nginx:latest
-    ports:
-      - 80:8000
     volumes:
-      - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
-      - django_build:/var/www/backend
+      - ./backend:/app
+      - dev-static-data:/vol/web
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DEBUG=1
+      - CELERY_BROKER=redis://redis:6379/0/
+      - CELERY_BACKEND=redis://redis:6379/0/
     depends_on:
-      - backend
+      - db
+      - pgadmin
+      - esearch
+      - redis
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+  esearch:
+    container_name: search
+    image: elasticsearch:7.17.5
+    environment:
+      - discovery.type=single-node
+    ports:
+      - '9200:9200'
+
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+
+  celery:
+    container_name: celery
+    restart: always
+    build: .
+    volumes:
+      - .:/django
+    command: celery -A adesua worker -l info
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+
+  celery-beat:
+    container_name: celery_beat
+    restart: always
+    build: .
+    volumes:
+      - .:/django
+    command: celery -A adesua beat -l info
+    depends_on:
+      - celery
+      - redis
+
+  flower:
+    container_name: flower_adesua
+    image: mher/flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - FLOWER_PORT=8888
+    ports:
+      - "8888:8888"
+
 volumes:
-  django_build:
+  dev-db-data:
+  dev-static-data:
