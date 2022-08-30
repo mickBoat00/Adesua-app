@@ -6,14 +6,17 @@ from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
+    path("__debug__/", include("debug_toolbar.urls")),
+    path("api-auth/", include("rest_framework.urls")),
     path("admin/", admin.site.urls),
-    path("api/", include("apps.course.urls")),
-    path("api/profile/", include("apps.profiles.urls")),
-    path("api/ratings/", include("apps.ratings.urls", namespace="ratings")),
+    path("api/", include("apps.course.urls", namespace="course")),
+    # path("api/", include("apps.course.urls")),
+    path("api/", include("apps.ratings.urls", namespace="ratings")),
     path("api/search/", include("apps.search.urls")),
     path("api/reviewers/", include("apps.reviewers.urls")),
     path("api/students/", include("apps.students.urls", namespace="student")),
     path("api/promotion/", include("apps.promotion.urls", namespace="promotion")),
+    path("api/profile/", include("apps.profiles.urls")),
     path("api/auth/", include("djoser.urls")),
     path("api/auth/", include("djoser.urls.jwt")),
     path("docs/", include_docs_urls(title="AdesuaAPI")),

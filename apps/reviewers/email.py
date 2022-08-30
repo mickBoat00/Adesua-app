@@ -3,7 +3,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
 
-def send_course_approved_email(course_title, course_instructor):
+def send_course_approved_email(course_title, course_instructor, email_message):
     context = {
         "course_name": course_title,
         "course_instructor": course_instructor,
@@ -11,7 +11,7 @@ def send_course_approved_email(course_title, course_instructor):
 
     email_subject = "Course approved"
     # email_body = render_to_string("email_message.txt", context)
-    email_body = render_to_string("email_message.txt", context)
+    email_body = render_to_string(email_message, context)
 
     email = EmailMessage(
         email_subject,

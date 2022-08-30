@@ -3,6 +3,7 @@ from django.db.models import Avg
 from rest_framework import serializers
 
 from apps.course.models import Course, Lesson
+from apps.course.serializers import InstructorSerializer
 from apps.profiles.models import Profile
 from apps.users.models import Reviewer
 from apps.users.serializers import UserSerializer
@@ -42,16 +43,16 @@ class CreateReviewerSerializer(UserSerializer):
         )
 
 
-class InstructorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = [
-            "id",
-            "phone_number",
-            "about_me",
-            "profile_photo",
-            "gender",
-        ]
+# class InstructorSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Profile
+#         fields = [
+#             "id",
+#             "phone_number",
+#             "about_me",
+#             "profile_photo",
+#             "gender",
+#         ]
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -67,10 +68,9 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class PendingCourseListSerializer(serializers.ModelSerializer):
-    instructor = InstructorSerializer(many=False)
+    instructor = InstructorSerializer(read_only=True)
     curriculum = serializers.StringRelatedField(many=False)
     year = serializers.StringRelatedField(many=False)
-    instructor = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     raters = serializers.SerializerMethodField()
     lessons = LessonSerializer(many=True, read_only=True)
@@ -83,6 +83,7 @@ class PendingCourseListSerializer(serializers.ModelSerializer):
             "year",
             "id",
             "title",
+            "slug",
             "cover_image",
             "price",
             "rating",
@@ -92,25 +93,22 @@ class PendingCourseListSerializer(serializers.ModelSerializer):
             "status",
         ]
         read_only_fields = [
-            # "instructor",
+            "instructor",
             "curriculum",
             "year",
-            # "id",
+            "id",
             "title",
+            "slug",
             "description",
             "cover_image",
             "price",
             "rating",
             "raters",
-            "slug",
             "rating",
             "raters",
             "pay",
             "lessons",
         ]
-
-    def get_instructor(self, obj):
-        return obj.instructor.username
 
     def get_rating(self, obj):
         return obj.ratings.all().aggregate(Avg("rating"))

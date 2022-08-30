@@ -2,6 +2,8 @@
 #### What is Adesua
 Adesua is a ghanaian language word for education. Adesua is a platform where parents can get access to lessons for their wards based on their current school year and school curriculum.
 
+The target market for this pupil from year 1 to year 12 or pupil who are not yet in High School.
+
 #### Why Adesua
 Growing up as a student in Ghana, we had private after school lessons from teachers who were not necessarily your school teacher at home, but the lessons were based on our school curriculum follows your school's curriculum 
 
@@ -18,6 +20,7 @@ Every Course created by a teacher for the platform passes through verfication ch
 
 ## Instructions on setting the application up.
 1. Clone the application to your local machine.
+    `docker-compose down`
 2. From your terminal, navigate to the application folder.
 3. Run `docker-compose down` in your terminal
 3. Run `docker-compose build` in your terminal

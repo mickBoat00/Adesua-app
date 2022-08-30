@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -7,6 +8,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.course.models import Course
+from apps.users.models import CourseInstructor, Student
 
 User = get_user_model()
 
@@ -46,7 +48,7 @@ class Promotion(models.Model):
     )
 
     is_active = models.BooleanField(default=False)
-    is_schedule = models.BooleanField(default=False)
+    is_schedule = models.BooleanField(default=True)
     promo_start = models.DateField()
     promo_end = models.DateField()
 
@@ -74,8 +76,9 @@ class Promotion(models.Model):
         if self.promo_start > self.promo_end:
             raise ValidationError(_("End data before the start date"))
 
-        if self.promo_percentage >= 1 and self.promo_amount >= 0.01:
-            raise ValidationError(_("You must select promotion percentage or amount not both"))
+        if self.promo_percentage is not None and self.promo_amount is not None:
+            if self.promo_percentage >= 1 and self.promo_amount >= 0.01:
+                raise ValidationError(_("You must select promotion percentage or amount not both"))
 
     def __str__(self):
         return self.name
@@ -106,3 +109,50 @@ class CoursesOnPromotion(models.Model):
 
     class Meta:
         unique_together = (("course_id", "promotion_id"),)
+
+    def __str__(self) -> str:
+        return f"{self.course_id.title} - {self.promotion_id.name} Promotion"
+
+
+class UserPromotion(models.Model):
+    student = models.ForeignKey(Student, related_name="promotion", on_delete=models.CASCADE)
+    promotion = models.ForeignKey(Promotion, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.promotion.name }- {self.student.username}"
+
+
+class TrialCourse(models.Model):
+    instructor = models.ForeignKey(CourseInstructor, related_name="courses_on_trail", on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=False)
+    is_scheduled = models.BooleanField(default=True)
+    courses_on_trail = models.ManyToManyField(
+        Course,
+        related_name="courses_on_trail",
+        through="CoursesOnTrial",
+    )
+
+    def __str__(self):
+        return f"{self.name} - {self.instructor.username}'s Courses "
+
+
+class CoursesOnTrial(models.Model):
+    course_id = models.ForeignKey(
+        Course,
+        related_name="trail",
+        on_delete=models.PROTECT,
+    )
+    trail_id = models.ForeignKey(
+        TrialCourse,
+        related_name="on_trail",
+        on_delete=models.CASCADE,
+    )
+
+    on_trail = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("course_id", "trail_id"),)

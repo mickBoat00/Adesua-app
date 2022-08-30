@@ -60,9 +60,11 @@ INSTALLED_APPS = [
     "apps.reviewers",
     "apps.students",
     "apps.promotion",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -71,6 +73,14 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+import socket
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
 
 ROOT_URLCONF = "adesua.urls"
 
@@ -162,9 +172,13 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 3,
+    "PAGE_SIZE": 5,
 }
 
 
@@ -204,7 +218,7 @@ DJOSER = {
 ELASTICSEARCH_DSL = {"default": {"hosts": "esearch"}}
 
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
@@ -214,7 +228,14 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 
 CELERY_BEAT_SCHEDULE = {
-    "scheduled_task": {"task": "apps.promotion.tasks.promotion_management", "schedule": crontab(minute="*")}
+    "scheduled_promotion_activation": {
+        "task": "apps.promotion.tasks.promotion_management",
+        "schedule": crontab(minute="*"),
+    },
+    "scheduled_trail_activation": {
+        "task": "apps.promotion.tasks.activate_free_trail",
+        "schedule": crontab(minute="*"),
+    },
 }
 
 

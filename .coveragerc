@@ -1,0 +1,12 @@
+[run]
+omit =
+    conftest.py
+    *tests*
+    *settings.py*
+
+[report]
+omit =
+   conftest.py
+   *tests*
+   *__init__.py*
+   *settings.py*

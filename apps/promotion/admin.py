@@ -1,7 +1,14 @@
 from django.contrib import admin
 
-from .models import Coupon, CoursesOnPromotion, Promotion, PromoType
-from .tasks import promotion_management, promotion_prices
+from .models import (
+    Coupon,
+    CoursesOnPromotion,
+    CoursesOnTrial,
+    Promotion,
+    PromoType,
+    TrialCourse,
+    UserPromotion,
+)
 
 admin.site.register(PromoType)
 
@@ -14,15 +21,24 @@ class CoursesOnPromotionAdmin(admin.StackedInline):
 
 
 class PromotionAdmin(admin.ModelAdmin):
-    list_display = ["name", "is_active", "promo_start", "promo_end"]
+    list_display = ["name", "is_active", "promo_percentage", "promo_amount", "promo_start", "promo_end"]
     inlines = (CoursesOnPromotionAdmin,)
-
-    # def save_model(self, request, obj, form, change):
-    #     print("running aint")
-    #     super().save_model(request, obj, form, change)
-    #     promotion_prices.delay(obj.promo_reduction, obj.id)
-    # promotion_management.delay()
 
 
 admin.site.register(Promotion, PromotionAdmin)
 admin.site.register(Coupon)
+admin.site.register(UserPromotion)
+
+
+class CoursesOnTrialAdmin(admin.StackedInline):
+    model = TrialCourse.courses_on_trail.through
+    extra = 2
+
+
+class TrialCourseAdmin(admin.ModelAdmin):
+    list_display = ["name", "start_date", "end_date", "is_active", "is_scheduled"]
+    inlines = (CoursesOnTrialAdmin,)
+
+
+admin.site.register(TrialCourse, TrialCourseAdmin)
+admin.site.register(CoursesOnTrial)

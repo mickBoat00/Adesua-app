@@ -2,6 +2,7 @@ import random
 
 import faker.providers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
@@ -109,7 +110,7 @@ class Command(BaseCommand):
                 last_name=last_name,
                 email=email,
                 type=random.choice(USER_TYPES),
-                password="testing321",
+                password=make_password("testing321"),
                 is_active=True,
             )
 
@@ -153,7 +154,7 @@ class Command(BaseCommand):
                 instructor=CourseInstructor.objects.order_by("?").first(),
                 title=random.choice(COURSE_TITLE),
                 description=fake.text(max_nb_chars=100),
-                cover_image="http://localhost:8000/media/course_images/interior_sample_Ihb2hNb.jpg",
+                cover_image="default.png",
                 price=(round(random.uniform(9.99, 99.99), 2)),
                 pay=random.choice(pay),
                 status="Approved",
@@ -165,5 +166,5 @@ class Command(BaseCommand):
                     course_id=course.id,
                     title=LESSON_TITLE[i],
                     description="I love what this it",
-                    video="http://localhost:8000/media/lesson_videos/videoplayback_1.mp4",
+                    video="videoplayback_1.mp4",
                 )

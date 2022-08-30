@@ -1,17 +1,12 @@
-import django_filters
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, permissions, status
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 
-from ..users.models import CourseInstructor
-from .models import Course, Curriculum, Lesson
-from .permissions import (
-    CourseInstructorPerm,
-    CourseInstrutorPerm,
-    LessonsDetailPerm,
-    SingleLessonPerm,
-)
+from apps.promotion.tasks import activate_user_promotion
+
+from .models import Course, Lesson
+from .permissions import AACourseInstrutorPerm, LessonsDetailPerm
 from .serializers import (
     CourseCreateSerializer,
     CourseDetailSerializer,
@@ -20,61 +15,45 @@ from .serializers import (
 )
 
 
-class CourseFilter(django_filters.FilterSet):
-    curriculum__name = django_filters.CharFilter(lookup_expr="iexact")
-    year__value = django_filters.CharFilter(lookup_expr="iexact")
-
-    class Meta:
-        model = Course
-        fields = ["curriculum__name", "year__value"]
-
-
-class CourseListAPIView(generics.ListAPIView):
-    queryset = Course.published.all()
+class CourseModelViewset(viewsets.ModelViewSet):
+    permission_classes = [AACourseInstrutorPerm]
     serializer_class = CourseListSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-
-    filterset_class = CourseFilter
-
-
-class CourseDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [CourseInstrutorPerm]
-    queryset = Course.objects.all()
-    serializer_class = CourseDetailSerializer
+    # queryset = Course.objects.all()
+    queryset = Course.objects.select_related("year", "curriculum", "instructor")
     lookup_field = "slug"
 
+    def get_serializer_class(self):
+        if self.action == "list":
+            return CourseListSerializer
 
-class CourseCreateAPIView(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated, CourseInstructorPerm]
-    queryset = Course.objects.all()
-    serializer_class = CourseCreateSerializer
+        elif self.action == "retrieve":
+            return CourseDetailSerializer
+
+        return CourseCreateSerializer
 
     def perform_create(self, serializer):
-        serializer.save(instructor=self.request.user)
+        return serializer.save(instructor=self.request.user)
 
 
-class CourseLessonsAPIView(generics.ListCreateAPIView):
+class LessonModelViewset(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, LessonsDetailPerm]
-    queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    queryset = Lesson.objects.all()
     lookup_field = "slug"
+    pagination_class = None
 
-    def get_queryset(self):
-        return super().get_queryset().filter(course__slug=self.kwargs.get("slug"))
+    def list(self, request, *args, **kwargs):
+        course_slug = self.kwargs.get("courseslug")
+        lessons = self.queryset.filter(course__slug=course_slug)
+        serializer = LessonSerializer(lessons, many=True)
+        return Response(serializer.data)
+
+    def get_object(self):
+        course_slug = self.kwargs.get("courseslug")
+        lesson_slug = self.kwargs.get("slug")
+        obj = get_object_or_404(Lesson, slug=lesson_slug, course__slug=course_slug)
+        return obj
 
     def perform_create(self, serializer):
-
-        course = Course.objects.get(slug=self.kwargs.get("slug"))
-
-        serializer.save(course=course)
-
-
-class LessonDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticated, SingleLessonPerm]
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    lookup_field = "slug"
+        course = Course.objects.get(slug=self.kwargs.get("courseslug"))
+        return serializer.save(course=course)

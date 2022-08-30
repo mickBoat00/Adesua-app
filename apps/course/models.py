@@ -59,11 +59,11 @@ class Course(TimeStampModel):
         CourseInstructor,
         verbose_name=_("Course Instructor"),
         validators=[validate_user_type],
-        related_name="instructor",
+        related_name="courses",
         on_delete=models.CASCADE,
     )
     title = models.CharField(verbose_name=_("Course Title"), max_length=100)
-    slug = AutoSlugField(populate_from="title", editable=True, unique=True, always_update=True)
+    slug = AutoSlugField(populate_from="title", editable=False, unique=True, always_update=True)
     description = models.TextField()
     cover_image = models.ImageField(verbose_name=_("Main Image"), default="default.png", upload_to="course_images")
     price = models.DecimalField(
@@ -106,14 +106,6 @@ class Course(TimeStampModel):
 
     def __str__(self):
         return self.title
-
-
-class Student(TimeStampModel):
-    course = models.ForeignKey(Course, related_name="students", on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.course} --- {self.profile.user.get_full_name}"
 
 
 class Lesson(TimeStampModel):
