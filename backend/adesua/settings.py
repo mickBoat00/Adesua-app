@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-=a&+hho)w&b9e4#uny-0rihn#d-c#$7hb&_7f=x3@#321_v)!n
 # DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 # ALLOWED_HOSTS.extend(
 #     filter(
 #         None,
@@ -173,6 +173,8 @@ STATIC_URL = "static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = "/vol/web/media"
 STATIC_ROOT = "/vol/web/static"
+
+# STATIC_ROOT = os.path.join(BASE_DIR, "backend/static/")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
