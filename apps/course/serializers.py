@@ -4,8 +4,6 @@ from django.db.models import Avg, Q, Sum
 from rest_framework import serializers
 
 from apps.promotion.models import Promotion, TrialCourse
-from apps.users.models import CourseInstructor
-from apps.users.serializers import UserSerializer
 
 User = get_user_model()
 
@@ -133,7 +131,7 @@ class CourseListSerializer(serializers.ModelSerializer):
         return obj.ratings.count()
 
 
-class AACourseDetailSerializer(serializers.ModelSerializer):
+class CourseDetailSerializer(serializers.ModelSerializer):
     curriculum = CurriculumSerializer()
     year = SchoolYearSerializer()
     instructor = InstructorSerializer()
@@ -198,7 +196,7 @@ class AACourseDetailSerializer(serializers.ModelSerializer):
         return obj.ratings.count()
 
 
-class AACourseCreateSerializer(serializers.ModelSerializer):
+class CourseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
@@ -211,50 +209,6 @@ class AACourseCreateSerializer(serializers.ModelSerializer):
             "price",
         ]
 
-
-class InstructorCourseInlineSerializer(serializers.Serializer):
-    title = serializers.CharField(read_only=True)
-
-
-class CourseDetailSerializer(serializers.ModelSerializer):
-    # instructor = InstructorProfileSerializer()
-    # curriculum = serializers.StringRelatedField(many=False)
-    # year = serializers.StringRelatedField(many=False)
-    curriculum = CurriculumSerializer()
-    year = SchoolYearSerializer()
-    lessons = serializers.StringRelatedField(many=True)
-    rating = serializers.SerializerMethodField()
-    raters = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Course
-        fields = [
-            "curriculum",
-            "year",
-            "id",
-            "title",
-            "slug",
-            "description",
-            "cover_image",
-            "price",
-            "rating",
-            "raters",
-            "lessons",
-            "pay",
-            "published_status",
-            # "instructor",
-        ]
-        read_only_fields = ["slug", "rating", "raters", "status", "students"]
-
-    def get_rating(self, obj):
-        return obj.ratings.all().aggregate(Avg("rating"))
-
-    def get_raters(self, obj):
-        rating = obj.ratings.all().aggregate(Avg("rating")).get("rating__avg")
-        return rating
-
-    def get_students(self, obj):
-        return obj.students.count()
 
 
 class LessonSerializer(serializers.ModelSerializer):

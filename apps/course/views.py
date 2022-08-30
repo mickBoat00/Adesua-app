@@ -8,8 +8,8 @@ from apps.promotion.tasks import activate_user_promotion
 from .models import Course, Lesson
 from .permissions import AACourseInstrutorPerm, LessonsDetailPerm
 from .serializers import (
-    AACourseCreateSerializer,
-    AACourseDetailSerializer,
+    CourseCreateSerializer,
+    CourseDetailSerializer,
     CourseListSerializer,
     LessonSerializer,
 )
@@ -27,9 +27,9 @@ class CourseModelViewset(viewsets.ModelViewSet):
             return CourseListSerializer
 
         elif self.action == "retrieve":
-            return AACourseDetailSerializer
+            return CourseDetailSerializer
 
-        return AACourseCreateSerializer
+        return CourseCreateSerializer
 
     def perform_create(self, serializer):
         return serializer.save(instructor=self.request.user)
