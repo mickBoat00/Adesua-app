@@ -16,6 +16,7 @@ RUN python -m venv /py && \
     apk add --update --no-cache --virtual .tmp-build-deps \
     build-base postgresql-dev musl-dev linux-headers && \
     /py/bin/pip install -r /requirements.txt && \  
+    /py/bin/python manage.py collectstatic --noinput && \  
     apk del .tmp-build-deps && \
     adduser \
     --disabled-password \
@@ -27,6 +28,9 @@ RUN python -m venv /py && \
     chown -R django-user:django-user /vol && \
     chmod -R 755 /vol && \
     chmod -R +x /scripts
+
+
+
 
 
 ENV PATH="/scripts:/py/bin:$PATH"
