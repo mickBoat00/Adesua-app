@@ -122,14 +122,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 
-def create_user_profile(sender, instance, created, **kwargs):
+def create_instructor_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(
-            user=instance,
-        )
+        if instance.type == "INSTRUCTOR":
+            Profile.objects.create(
+                user=instance,
+            )
 
 
-post_save.connect(create_user_profile, sender=User)
+post_save.connect(create_instructor_profile, sender=User)
 
 
 class StudentManager(BaseUserManager):

@@ -59,7 +59,7 @@ class InstructorSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_other_courses(self, obj):
-        instructor_courses = obj.courses.all()
+        instructor_courses = obj.courses.all()[:5]
         return OtherCourseSerializer(instructor_courses, many=True).data
 
 
@@ -106,11 +106,9 @@ class CourseListSerializer(serializers.ModelSerializer):
             x = Promotion.courses_on_promotion.through.objects.filter(
                 Q(promotion_id__is_active=True) & Q(course_id=obj.id)
             )
-            print("x", x)
 
             discount_amount = x.aggregate(Sum("promo_price")).get("promo_price__sum")
 
-            print("discount_amount", discount_amount)
 
             if discount_amount == None:
                 return None
@@ -226,16 +224,27 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class CourseSearchSerializer(serializers.ModelSerializer):
+
+    curriculum = CurriculumSerializer()
+    year = SchoolYearSerializer()
+    instructor = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
+        # fields = '__all__'
         fields = [
-            "id",
-            "title",
-            "slug",
-            "cover_image",
-            "price",
-            "rating",
-            "raters",
-            "pay",
+            'id',
+            'title',
+            'description',
+            'year',
+            'curriculum',
+            'instructor',
+            'status',
+            'published_status',
         ]
-        read_only_fields = ["slug", "rating", "raters"]
+        read_only_fields = fields
+
+    def get_instructor(self, obj):
+        return f"{obj.instructor.first_name} - {obj.instructor.last_name}"
+
+

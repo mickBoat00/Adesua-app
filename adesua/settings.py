@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     "django_elasticsearch_dsl",
     "djcelery_email",
     "django_filters",
-    # "django_celery_beat",
     "apps.course",
     "apps.users",
     "apps.profiles",

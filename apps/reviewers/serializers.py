@@ -43,18 +43,6 @@ class CreateReviewerSerializer(UserSerializer):
         )
 
 
-# class InstructorSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Profile
-#         fields = [
-#             "id",
-#             "phone_number",
-#             "about_me",
-#             "profile_photo",
-#             "gender",
-#         ]
-
-
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson

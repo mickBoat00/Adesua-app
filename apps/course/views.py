@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
-
 from apps.promotion.tasks import activate_user_promotion
 
 from .models import Course, Lesson
@@ -13,14 +14,17 @@ from .serializers import (
     CourseListSerializer,
     LessonSerializer,
 )
-
+from rest_framework import filters
 
 class CourseModelViewset(viewsets.ModelViewSet):
     permission_classes = [AACourseInstrutorPerm]
     serializer_class = CourseListSerializer
-    # queryset = Course.objects.all()
     queryset = Course.objects.select_related("year", "curriculum", "instructor")
     lookup_field = "slug"
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = ['title']
+    ordering_fields = ['price', 'year__value']
+    filterset_fields = ['curriculum__name', 'year__value']
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -42,17 +46,10 @@ class LessonModelViewset(viewsets.ModelViewSet):
     lookup_field = "slug"
     pagination_class = None
 
-    def list(self, request, *args, **kwargs):
+    def get_queryset(self):
         course_slug = self.kwargs.get("courseslug")
         lessons = self.queryset.filter(course__slug=course_slug)
-        serializer = LessonSerializer(lessons, many=True)
-        return Response(serializer.data)
-
-    def get_object(self):
-        course_slug = self.kwargs.get("courseslug")
-        lesson_slug = self.kwargs.get("slug")
-        obj = get_object_or_404(Lesson, slug=lesson_slug, course__slug=course_slug)
-        return obj
+        return lessons
 
     def perform_create(self, serializer):
         course = Course.objects.get(slug=self.kwargs.get("courseslug"))

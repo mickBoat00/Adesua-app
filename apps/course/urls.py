@@ -5,7 +5,6 @@ from .views import CourseModelViewset, LessonModelViewset
 
 app_name = "course"
 
-
 router = routers.DefaultRouter()
 
 router.register(r"courses", CourseModelViewset, basename="courses")

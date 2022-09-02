@@ -95,6 +95,7 @@ Link to Database Design https://youtu.be/APhI43fyRHI
 <li>Django</li>
 <li>Django Rest Framework</li>
 <li>PostgreSQL</li>
+<li>ElasticSearch</li>
 <li>Celery</li>
 <li>Redis</li>
 
