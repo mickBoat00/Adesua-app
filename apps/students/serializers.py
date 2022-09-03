@@ -10,4 +10,4 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
         fields = ["id", "course", "price", "course_on_free_trail", "is_active"]
-        read_only_fields = ["course_on_free_trail"]
+        read_only_fields = ["is_active","course_on_free_trail"]

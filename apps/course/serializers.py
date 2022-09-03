@@ -129,69 +129,80 @@ class CourseListSerializer(serializers.ModelSerializer):
         return obj.ratings.count()
 
 
-class CourseDetailSerializer(serializers.ModelSerializer):
-    curriculum = CurriculumSerializer()
-    year = SchoolYearSerializer()
+
+class CourseDetailSerializer(CourseListSerializer):
     instructor = InstructorSerializer()
-    rating = serializers.SerializerMethodField()
-    raters = serializers.SerializerMethodField()
-    promotion_price = serializers.SerializerMethodField()
-    on_trail = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Course
-        fields = [
-            "curriculum",
-            "year",
-            "id",
-            "title",
-            "slug",
-            "cover_image",
-            "rating",
-            "raters",
-            "pay",
-            "price",
-            "promotion_price",
-            "on_trail",
-            "instructor",
-        ]
-        read_only_fields = fields
+    class Meta(CourseListSerializer.Meta):
+        fields = CourseListSerializer.Meta.fields + ['instructor']
 
-    def get_on_trail(self, obj):
-        try:
-            x = TrialCourse.courses_on_trail.through.objects.get(Q(trail_id__is_active=True) & Q(course_id=obj.id))
+    # def get_instructor(self, obj):
+    #     return obj.instructor.get_full_name
 
-            return x.on_trail
 
-        except ObjectDoesNotExist:
-            return None
+# class CourseDetailSerializer(serializers.ModelSerializer):
+#     curriculum = CurriculumSerializer()
+#     year = SchoolYearSerializer()
+#     instructor = InstructorSerializer()
+#     rating = serializers.SerializerMethodField()
+#     raters = serializers.SerializerMethodField()
+#     promotion_price = serializers.SerializerMethodField()
+#     on_trail = serializers.SerializerMethodField()
 
-    def get_promotion_price(self, obj):
+#     class Meta:
+#         model = Course
+#         fields = [
+#             "curriculum",
+#             "year",
+#             "id",
+#             "title",
+#             "slug",
+#             "cover_image",
+#             "rating",
+#             "raters",
+#             "pay",
+#             "price",
+#             "promotion_price",
+#             "on_trail",
+#             "instructor",
+#         ]
+#         read_only_fields = fields
 
-        try:
-            x = Promotion.courses_on_promotion.through.objects.filter(
-                Q(promotion_id__is_active=True) & Q(course_id=obj.id)
-            )
+#     def get_on_trail(self, obj):
+#         try:
+#             x = TrialCourse.courses_on_trail.through.objects.get(Q(trail_id__is_active=True) & Q(course_id=obj.id))
 
-            discount_amount = x.aggregate(Sum("promo_price")).get("promo_price__sum")
+#             return x.on_trail
 
-            if discount_amount == None:
-                return None
+#         except ObjectDoesNotExist:
+#             return None
 
-            return obj.price - discount_amount
+#     def get_promotion_price(self, obj):
 
-        except ObjectDoesNotExist:
-            return None
+#         try:
+#             x = Promotion.courses_on_promotion.through.objects.filter(
+#                 Q(promotion_id__is_active=True) & Q(course_id=obj.id)
+#             )
 
-    def get_instructor(self, obj):
-        return obj.instructor.get_full_name
+#             discount_amount = x.aggregate(Sum("promo_price")).get("promo_price__sum")
 
-    def get_rating(self, obj):
-        rating = obj.ratings.all().aggregate(Avg("rating")).get("rating__avg")
-        return rating
+#             if discount_amount == None:
+#                 return None
 
-    def get_raters(self, obj):
-        return obj.ratings.count()
+#             return obj.price - discount_amount
+
+#         except ObjectDoesNotExist:
+#             return None
+
+#     def get_instructor(self, obj):
+#         return obj.instructor.get_full_name
+
+#     def get_rating(self, obj):
+#         rating = obj.ratings.all().aggregate(Avg("rating")).get("rating__avg")
+#         return rating
+
+#     def get_raters(self, obj):
+#         return obj.ratings.count()
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
@@ -231,7 +242,6 @@ class CourseSearchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        # fields = '__all__'
         fields = [
             'id',
             'title',

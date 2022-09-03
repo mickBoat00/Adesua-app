@@ -216,7 +216,6 @@ DJOSER = {
 
 ELASTICSEARCH_DSL = {"default": {"hosts": "esearch"}}
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
@@ -240,3 +239,7 @@ CELERY_BEAT_SCHEDULE = {
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+
+
+PAYSTACK_SECRET_KEY = env("PAYSTACK_SECRET_KEY")
+PAYSTACK_PUBLIC_KEY  = env("PAYSTACK_PUBLIC_KEY")
