@@ -94,7 +94,7 @@ class LessonsDetailPerm(permissions.BasePermission):
             if course.instructor == request.user:
                 return True
 
-            elif course.enrollments.filter(student=request.user, is_active=True).exists():
+            elif course.enrollments.filter(student=request.user, is_active=True, verified=True).exists():
                 return True
 
             return False

@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import PromotionActivation, StudentEnrollmentAPIView
 
-app_name = "student"
+app_name = "enrollment"
 
 urlpatterns = [
     path("course-enrollment/", StudentEnrollmentAPIView.as_view(), name="course-enrollment"),

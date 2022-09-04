@@ -1,17 +1,15 @@
+import secrets
 from decimal import Decimal
 
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
-
-from .paystack import Paystack
+from django.utils.translation import gettext_lazy as _
 
 from apps.course.models import Course
 from apps.users.models import Student
 
-import secrets
-
+from .paystack import Paystack
 from .validators import validate_user_type
 
 
@@ -54,24 +52,25 @@ class CourseEnrollment(models.Model):
                 self.ref = ref
         super().save(*args, **kwargs)
 
-
     def __str__(self):
         return f"{self.course.title} - {self.student.username}"
 
 
 def create_paystack_transaction(sender, instance, created, **kwargs):
     if created:
-        payment = Paystack()
 
-        status = payment.make_payment(
-            ref=instance.ref, 
-            email=instance.student.email, 
-            amount = instance.price
-        )
+        if instance.course.enrollment_type == "Paid":
+            print("paif")
+            payment = Paystack()
 
-        if status == True:
+            status = payment.make_payment(ref=instance.ref, email=instance.student.email, amount=instance.price)
+
+            if status == True:
+                instance.verified = True
+        else:
+            print("free")
             instance.verified = True
-    
+
         instance.save()
 
 

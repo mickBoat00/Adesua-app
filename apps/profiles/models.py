@@ -18,6 +18,7 @@ class Gender(models.TextChoices):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
+    current_school_working = models.CharField(verbose_name=_("The school you're currently teacing"),max_length=100,)
     phone_number = PhoneNumberField(verbose_name=_("Phone Number"), max_length=30, default="+233559875250")
     about_me = models.TextField(verbose_name=_("About me"), default="say something about yourself")
     profile_photo = models.ImageField(verbose_name=_("Profile Photo"), default="/profile_default.png")

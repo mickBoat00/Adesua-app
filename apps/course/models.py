@@ -74,7 +74,7 @@ class Course(TimeStampModel):
         validators=[MinValueValidator(Decimal("0.00"))],
     )
 
-    pay = models.CharField(
+    enrollment_type = models.CharField(
         verbose_name=_("Paid / Free"),
         max_length=4,
         choices=PAY_CHOICES,
@@ -91,6 +91,7 @@ class Course(TimeStampModel):
     published_status = models.BooleanField(verbose_name=_("Published Status"), default=False)
 
     objects = models.Manager()
+
     published = CoursePublishedManager()
 
     class Meta:
@@ -100,7 +101,7 @@ class Course(TimeStampModel):
 
     def save(self, *args, **kwargs):
         self.title = str.title(self.title)
-        if self.pay == "Free":
+        if self.enrollment_type == "Free":
             self.price = 0.00
         super(Course, self).save(*args, **kwargs)
 

@@ -13,7 +13,7 @@ urlpatterns = [
     path("api/", include("apps.ratings.urls", namespace="ratings")),
     path("api/search/", include("apps.search.urls")),
     path("api/", include("apps.reviewers.urls")),
-    path("api/students/", include("apps.students.urls", namespace="student")),
+    path("api/enrollment/", include("apps.enrollment.urls", namespace="enrollment")),
     path("api/promotion/", include("apps.promotion.urls", namespace="promotion")),
     path("api/profile/", include("apps.profiles.urls")),
     path("api/auth/", include("djoser.urls")),

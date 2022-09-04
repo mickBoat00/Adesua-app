@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from apps.students.models import CourseEnrollment
+from apps.enrollment.models import CourseEnrollment
 
 
 class CourseRatingPerm(permissions.BasePermission):
@@ -13,14 +13,19 @@ class CourseRatingPerm(permissions.BasePermission):
             if request.method in permissions.SAFE_METHODS:
                 return True
 
-        elif request.method in permissions.SAFE_METHODS:
-
+        if request.method in permissions.SAFE_METHODS:
             return True
+
         else:
-            return CourseEnrollment.objects.filter(student=request.user).exists()
+
+            return CourseEnrollment.objects.filter(
+                course__slug=view.kwargs.get("courseslug"), student=request.user
+            ).exists()
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.rater == request.user
+        return CourseEnrollment.objects.filter(
+            course__slug=view.kwargs.get("courseslug"), student=request.user
+        ).exists()

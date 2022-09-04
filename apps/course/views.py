@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import permissions, viewsets
+from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
+
 from apps.promotion.tasks import activate_user_promotion
 
 from .models import Course, Lesson
@@ -14,17 +14,16 @@ from .serializers import (
     CourseListSerializer,
     LessonSerializer,
 )
-from rest_framework import filters
+
 
 class CourseModelViewset(viewsets.ModelViewSet):
     permission_classes = [AACourseInstrutorPerm]
     serializer_class = CourseListSerializer
-    queryset = Course.objects.select_related("year", "curriculum", "instructor")
+    queryset = Course.objects.select_related("year", "curriculum", "instructor").all()
     lookup_field = "slug"
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
-    search_fields = ['title']
-    ordering_fields = ['price', 'year__value']
-    filterset_fields = ['curriculum__name', 'year__value']
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    ordering_fields = ["price", "year__value"]
+    filterset_fields = ["curriculum__name", "year__value"]
 
     def get_serializer_class(self):
         if self.action == "list":

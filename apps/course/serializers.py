@@ -75,16 +75,16 @@ class CourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
+            "id",
+            "title",
             "curriculum",
             "year",
-            "id",
             "instructor",
-            "title",
             "slug",
             "cover_image",
             "rating",
             "raters",
-            "pay",
+            "enrollment_type",
             "price",
             "promotion_price",
             "on_trail",
@@ -109,7 +109,6 @@ class CourseListSerializer(serializers.ModelSerializer):
 
             discount_amount = x.aggregate(Sum("promo_price")).get("promo_price__sum")
 
-
             if discount_amount == None:
                 return None
 
@@ -129,15 +128,11 @@ class CourseListSerializer(serializers.ModelSerializer):
         return obj.ratings.count()
 
 
-
 class CourseDetailSerializer(CourseListSerializer):
     instructor = InstructorSerializer()
 
     class Meta(CourseListSerializer.Meta):
-        fields = CourseListSerializer.Meta.fields + ['instructor']
-
-    # def get_instructor(self, obj):
-    #     return obj.instructor.get_full_name
+        fields = CourseListSerializer.Meta.fields
 
 
 # class CourseDetailSerializer(serializers.ModelSerializer):
@@ -160,7 +155,7 @@ class CourseDetailSerializer(CourseListSerializer):
 #             "cover_image",
 #             "rating",
 #             "raters",
-#             "pay",
+#             "enrollment_type",
 #             "price",
 #             "promotion_price",
 #             "on_trail",
@@ -214,10 +209,9 @@ class CourseCreateSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "cover_image",
-            "pay",
+            "enrollment_type",
             "price",
         ]
-
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -243,18 +237,16 @@ class CourseSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
-            'id',
-            'title',
-            'description',
-            'year',
-            'curriculum',
-            'instructor',
-            'status',
-            'published_status',
+            "id",
+            "title",
+            "description",
+            "year",
+            "curriculum",
+            "instructor",
+            "status",
+            "published_status",
         ]
         read_only_fields = fields
 
     def get_instructor(self, obj):
         return f"{obj.instructor.first_name} - {obj.instructor.last_name}"
-
-

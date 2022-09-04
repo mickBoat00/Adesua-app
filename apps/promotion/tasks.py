@@ -5,8 +5,8 @@ from math import ceil
 from celery import shared_task
 from django.db import transaction
 
+from apps.enrollment.models import CourseEnrollment
 from apps.reviewers.tasks import send_course_email
-from apps.students.models import CourseEnrollment
 
 from .models import CoursesOnPromotion, Promotion, TrialCourse
 

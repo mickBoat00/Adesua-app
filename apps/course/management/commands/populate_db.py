@@ -145,7 +145,7 @@ class Command(BaseCommand):
         )
 
         # Create 10 courses with three lessons each
-        pay = ["Paid", "Free"]
+        enrollment_type = ["Paid", "Free"]
         for _ in range(10):
 
             course = Course.objects.create(
@@ -156,7 +156,7 @@ class Command(BaseCommand):
                 description=fake.text(max_nb_chars=100),
                 cover_image="default.png",
                 price=(round(random.uniform(9.99, 99.99), 2)),
-                pay=random.choice(pay),
+                enrollment_type=random.choice(enrollment_type),
                 status="Approved",
                 published_status=True,
             )

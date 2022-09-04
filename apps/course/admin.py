@@ -14,8 +14,8 @@ class LessonInLine(admin.StackedInline):
 
 class CourseAdmin(admin.ModelAdmin):
     inlines = [LessonInLine]
-    list_display = ["curriculum", "year", "title", "slug", "pay", "price"]
-    list_filter = ["curriculum", "year", "price", "pay"]
+    list_display = ["curriculum", "year", "title", "slug", "enrollment_type", "price"]
+    list_filter = ["curriculum", "year", "price", "enrollment_type"]
     readonly_fields = ["slug", "created_on", "updated_on"]
 
 
